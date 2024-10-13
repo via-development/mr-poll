@@ -1,0 +1,26 @@
+model PollSchedule {
+  scheduleId String @id @default(cuid())
+  channelId String
+  guildId   String?
+
+  userId          String
+  userTag         String
+  userDisplayName String?
+
+  question String
+  options  Json[]   @default([])
+  images   String[] @default([])
+
+  anonymousVoters Boolean @default(false)
+  showCount       Boolean @default(true)
+  representiveBar Boolean @default(false)
+  numberOfChoices Int     @default(1)
+  emojiOptions    Boolean @default(false)
+
+  requiredRoles   String[] @default([])
+  bonusVoteRoles  Json[]   @default([])
+  bonusVotesStack Boolean  @default(true)
+
+  scheduleDate DateTime 
+  endsAt DateTime?
+}

@@ -1,0 +1,138 @@
+generator client {
+    provider = "prisma-client-js"
+}
+
+datasource db {
+    provider = "postgresql"
+    url = env("DB_URL")
+}
+
+model Poll {
+  messageId String  @id
+  channelId String
+  guildId   String?
+
+  userId          String
+  username        String
+  userDisplayName String?
+
+  question String
+  options  Json[]   @default([])
+  images   String[] @default([])
+
+  anonymousVoters Boolean @default(false)
+  showCount       Boolean @default(true)
+  representiveBar Boolean @default(false)
+  minChoices      Int     @default(1)
+  maxChoices      Int     @default(1)
+  emojiOptions    Boolean @default(false)
+
+  requiredRoles   String[] @default([])
+  bonusVoteRoles  Json[]   @default([])
+  bonusVotesStack Boolean  @default(true)
+
+  endsAt    DateTime?
+  hasEnded  Boolean   @default(false)
+  createdAt DateTime  @default(now())
+
+  plsMigrate Boolean @default(false)
+}
+
+model PollSchedule {
+  scheduleId String @id @default(cuid())
+  channelId String
+  guildId   String?
+
+  userId          String
+  userTag         String
+  userDisplayName String?
+
+  question String
+  options  Json[]   @default([])
+  images   String[] @default([])
+
+  anonymousVoters Boolean @default(false)
+  showCount       Boolean @default(true)
+  representiveBar Boolean @default(false)
+  numberOfChoices Int     @default(1)
+  emojiOptions    Boolean @default(false)
+
+  requiredRoles   String[] @default([])
+  bonusVoteRoles  Json[]   @default([])
+  bonusVotesStack Boolean  @default(true)
+
+  scheduleDate DateTime 
+  endsAt DateTime?
+}
+
+model Suggestion {
+  messageId           String @id
+  channelId           String
+  guildId             String
+  suggestionChannelId String
+
+  userId          String
+  username        String
+  userDisplayName String?
+
+  title       String?
+  description String
+  images      String[] @default([])
+
+  anonymousAuthor Boolean @default(false)
+  anonymousVoters Boolean @default(false)
+  showCounts      Boolean @default(false)
+
+  upvotes   String[]
+  downvotes String[]
+
+  createdAt DateTime @default(now())
+
+  plsMigrate Boolean @default(false)
+}
+
+model SuggestionChannel {
+  name      String
+  channelId String @id
+  guildId   String
+
+  approveChannelId String?
+  denyChannelId    String?
+
+  createThreads   Boolean?
+  anonymousAuthor Boolean?
+  anonymousVoters Boolean?
+  showCounts      Boolean?
+
+  upvoteEmoji   String?
+  downvoteEmoji String?
+  embedColor    Int?
+  cooldown      Int?
+}
+
+model SuggestionConfig {
+  guildId String @id
+
+  upvoteEmoji   String?
+  downvoteEmoji String?
+  embedColor    Int?
+  cooldown      Int?
+
+  blacklistedUsers String[] @default([])
+}
+
+model SuggestionUserCooldown {
+    channelId       String
+    userId          String
+    createdAt       DateTime @default(now())
+
+    @@id([userId, channelId])
+}
+
+model User {
+    userId          String  @id
+    username        String
+    displayName     String?
+    permissionLevel Int     @default(0)
+    blacklisted     Boolean @default(false)
+}

@@ -1,0 +1,7 @@
+model SuggestionUserCooldown {
+    channelId       String
+    userId          String
+    createdAt       DateTime @default(now())
+
+    @@id([userId, channelId])
+}
