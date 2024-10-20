@@ -14,7 +14,7 @@ func CommandHandler(e *events.ApplicationCommandInteractionCreate) {
 	command, ok := generalModule.Module.Commands[commandName]
 	if ok {
 		err := command(e)
-		fmt.Println(err)
+		fmt.Println("Err: ", err)
 
 		return
 	}
@@ -22,7 +22,7 @@ func CommandHandler(e *events.ApplicationCommandInteractionCreate) {
 	command, ok = pollModule.Module.Commands[commandName]
 	if ok {
 		err := command(e)
-		fmt.Println(err)
+		fmt.Println("Err: ", err)
 
 		return
 	}

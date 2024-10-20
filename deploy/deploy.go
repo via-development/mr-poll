@@ -32,6 +32,20 @@ func main() {
 		discord.SlashCommandCreate{
 			Name:        "poll",
 			Description: "lol",
+			Options: []discord.ApplicationCommandOption{
+				discord.ApplicationCommandOptionSubCommand{
+					Name:        "online",
+					Description: "Create a poll for Discord using our website.",
+				},
+				discord.ApplicationCommandOptionSubCommand{
+					Name:        "yes-or-no",
+					Description: "Create a yes or no poll.",
+				},
+				discord.ApplicationCommandOptionSubCommand{
+					Name:        "single-choice",
+					Description: "Create a yes or no poll.",
+				},
+			},
 		},
 	}
 

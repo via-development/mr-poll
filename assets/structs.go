@@ -1,4 +1,4 @@
-package structs
+package assets
 
 import (
 	"github.com/disgoorg/disgo/bot"
