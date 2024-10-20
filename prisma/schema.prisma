@@ -1,10 +1,10 @@
-generator client {
-    provider = "prisma-client-js"
+datasource db {
+  provider = "postgresql"
+  url      = env("DB_URL")
 }
 
-datasource db {
-    provider = "postgresql"
-    url = env("DB_URL")
+generator db {
+  provider = "go run github.com/steebchen/prisma-client-go"
 }
 
 model Poll {
@@ -20,19 +20,15 @@ model Poll {
   options  Json[]   @default([])
   images   String[] @default([])
 
-  anonymousVoters Boolean @default(false)
-  showCount       Boolean @default(true)
-  representiveBar Boolean @default(false)
-  minChoices      Int     @default(1)
-  maxChoices      Int     @default(1)
-  emojiOptions    Boolean @default(false)
+  minChoices Int @default(1)
+  maxChoices Int @default(1)
 
-  requiredRoles   String[] @default([])
-  bonusVoteRoles  Json[]   @default([])
-  bonusVotesStack Boolean  @default(true)
+  flags Int @default(0) // 0b00000 - bit order (smallest to largest): hasEnded, anonymousVoting, dontShowIndivualCount, emojiOptions, bonusVotesRolesStack
+
+  requiredRoles  String[] @default([])
+  bonusVoteRoles Json[]   @default([])
 
   endsAt    DateTime?
-  hasEnded  Boolean   @default(false)
   createdAt DateTime  @default(now())
 
   plsMigrate Boolean @default(false)
