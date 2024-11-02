@@ -1,4 +1,4 @@
-package pollAssets
+package util
 
 import "github.com/disgoorg/disgo/discord"
 

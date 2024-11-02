@@ -3,7 +3,7 @@ package main
 import (
 	"fmt"
 	"github.com/disgoorg/disgo/discord"
-	rest "github.com/disgoorg/disgo/rest"
+	"github.com/disgoorg/disgo/rest"
 	"github.com/gofor-little/env"
 	"log"
 )

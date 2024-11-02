@@ -1,4 +1,4 @@
-package pollAssets
+package util
 
 const (
 	FlagPollEnded               = 1 << iota

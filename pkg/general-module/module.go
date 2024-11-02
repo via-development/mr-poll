@@ -2,7 +2,7 @@ package generalModule
 
 import (
 	"github.com/disgoorg/disgo/events"
-	generalCommands "mrpoll_go/general-module/commands"
+	generalCommands "mrpoll_go/pkg/general-module/commands"
 )
 
 type GeneralModule struct {

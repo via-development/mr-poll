@@ -15,5 +15,25 @@ If you're interested in looking through the packages that this project uses:
 - [Prisma Go - Database ORM](https://goprisma.org/docs)
 - [Env - Environment Variable Manager](https://github.com/gofor-little/env)
 
-## <...>
-<...>
+## Todo
+
+#### Data:
+- [ ] Review Database schemas
+- [ ] Use a Database
+- [ ] Use Redis to cache data
+
+#### General Functionality:
+- [ ] List commands on help command
+
+#### Poll Functionality:
+- [ ] Create & send polls with command
+  - [ ] Yes Or No
+  - [ ] Multiple Choice
+  - [ ] Single Choice
+- [ ] End polls with command
+- [ ] Send poll with internal API
+- [ ] End polls with internal API
+- [ ] Handle user voting
+- [ ] Anonymous polls voters
+- [ ] Required poll roles
+- [ ] Poll timers

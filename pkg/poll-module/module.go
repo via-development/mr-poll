@@ -2,7 +2,7 @@ package pollModule
 
 import (
 	"github.com/disgoorg/disgo/events"
-	pollCommands "mrpoll_go/poll-module/commands"
+	pollCommands "mrpoll_go/pkg/poll-module/commands"
 )
 
 type PollModule struct {

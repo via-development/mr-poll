@@ -3,8 +3,8 @@ package pollCommands
 import (
 	"github.com/disgoorg/disgo/discord"
 	"github.com/disgoorg/disgo/events"
-	"mrpoll_go/assets"
-	pollAssets "mrpoll_go/poll-module/assets"
+	"mrpoll_go/pkg/base-util"
+	"mrpoll_go/pkg/poll-module/util"
 )
 
 func PollCommand(interaction *events.ApplicationCommandInteractionCreate) error {
@@ -25,7 +25,7 @@ func PollCommand(interaction *events.ApplicationCommandInteractionCreate) error 
 	default:
 		return interaction.CreateMessage(discord.MessageCreate{
 			Embeds: []discord.Embed{
-				assets.MakeSimpleEmbed("I cannot find that command!"),
+				baseUtil.MakeSimpleEmbed("I cannot find that command!"),
 			},
 		})
 	}
@@ -34,7 +34,7 @@ func PollCommand(interaction *events.ApplicationCommandInteractionCreate) error 
 func pollCreateCommand(interaction *events.ApplicationCommandInteractionCreate) error {
 	return interaction.CreateMessage(discord.MessageCreate{
 		Embeds: []discord.Embed{
-			pollAssets.MakePollEmbed(),
+			util.MakePollEmbed(),
 		},
 	})
 }

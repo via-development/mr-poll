@@ -7,7 +7,7 @@ import (
 	"github.com/disgoorg/disgo/httpserver"
 	"github.com/gofor-little/env"
 	"log"
-	mpHandlers "mrpoll_go/handlers"
+	mpHandlers "mrpoll_go/internal/event-handlers"
 	"os"
 	"os/signal"
 	"syscall"
