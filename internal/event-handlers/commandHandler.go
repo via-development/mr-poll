@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"github.com/disgoorg/disgo/discord"
 	"github.com/disgoorg/disgo/events"
-	generalModule "mrpoll_go/pkg/general-module"
-	pollModule "mrpoll_go/pkg/poll-module"
+	generalModule "mrpoll_go/internal/general-module"
+	pollModule "mrpoll_go/internal/poll-module"
 )
 
 func CommandHandler(e *events.ApplicationCommandInteractionCreate) {
