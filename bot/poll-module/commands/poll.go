@@ -3,8 +3,8 @@ package pollCommands
 import (
 	"github.com/disgoorg/disgo/discord"
 	"github.com/disgoorg/disgo/events"
-	baseUtil "mrpoll_go/internal/base-util"
-	"mrpoll_go/internal/poll-module/util"
+	baseUtil "mrpoll_go/bot/base-util"
+	"mrpoll_go/bot/poll-module/util"
 )
 
 func PollCommand(interaction *events.ApplicationCommandInteractionCreate) error {
