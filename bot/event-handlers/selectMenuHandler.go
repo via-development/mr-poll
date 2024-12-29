@@ -1,17 +1,17 @@
 package eventHandlers
 
 import (
-	"fmt"
-	"github.com/disgoorg/disgo/discord"
 	"github.com/disgoorg/disgo/events"
 	baseUtil "mrpoll_bot/base-util"
 	generalModule "mrpoll_bot/general-module"
 	pollModule "mrpoll_bot/poll-module"
 	suggestionModule "mrpoll_bot/suggestion-module"
+	"strings"
 )
 
-func CommandHandler(e *events.ApplicationCommandInteractionCreate) {
-	commandName := e.SlashCommandInteractionData().CommandName()
+// SelectMenuHandler is not directly emitted by Disgo but by ComponentHandler
+func SelectMenuHandler(e *events.ComponentInteractionCreate) {
+	customId := e.Data.CustomID()
 	modules := []*baseUtil.Module{
 		(*baseUtil.Module)(generalModule.Module),
 		(*baseUtil.Module)(pollModule.Module),
@@ -19,17 +19,12 @@ func CommandHandler(e *events.ApplicationCommandInteractionCreate) {
 	}
 
 	for _, module := range modules {
-		command, ok := module.Commands[commandName]
-		if ok {
-			err := command(e)
-			fmt.Println("Err: ", err)
-
-			return
+		for _, selectMenu := range module.SelectMenus {
+			if strings.HasPrefix(customId, selectMenu.Prefix) {
+				_ = selectMenu.Execute(e)
+				return
+			}
 		}
 	}
 
-	_ = e.CreateMessage(discord.MessageCreate{
-		Content: "I couldn't find that command!",
-		Flags:   discord.MessageFlagEphemeral,
-	})
 }

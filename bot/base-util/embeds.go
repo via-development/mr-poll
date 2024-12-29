@@ -8,3 +8,10 @@ func MakeSimpleEmbed(text string) discord.Embed {
 		Color:       Config.EmbedColor,
 	}
 }
+
+func CommandNotFoundEmbed() discord.Embed {
+	return discord.Embed{
+		Description: "Command not found!",
+		Color:       Config.EmbedColor,
+	}
+}

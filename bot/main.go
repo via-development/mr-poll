@@ -10,7 +10,10 @@ import (
 	"github.com/gofor-little/env"
 	"log"
 	mpHandlers "mrpoll_bot/event-handlers"
-	panelApi "mrpoll_bot/internal-api"
+	generalModule "mrpoll_bot/general-module"
+	internalApi "mrpoll_bot/internal-api"
+	pollModule "mrpoll_bot/poll-module"
+	suggestionModule "mrpoll_bot/suggestion-module"
 	"os"
 	"os/signal"
 	"syscall"
@@ -41,6 +44,7 @@ func main() {
 			cache.WithCaches(cache.FlagGuilds, cache.FlagChannels),
 		),
 		bot.WithEventListenerFunc(mpHandlers.CommandHandler),
+		bot.WithEventListenerFunc(mpHandlers.ComponentHandler),
 		bot.WithGatewayConfigOpts(
 			gateway.WithIntents(gateway.IntentGuilds),
 		),
@@ -57,7 +61,12 @@ func main() {
 	}
 	defer client.Close(context.TODO())
 
-	_ = panelApi.NewApi(&client)
+	generalModule.InitGeneralModule(&client)
+	pollModule.InitPollModule(&client)
+	suggestionModule.InitSuggestionModule(&client)
+
+	api := internalApi.NewApi(&client)
+	defer api.Close()
 
 	s := make(chan os.Signal, 1)
 	signal.Notify(s, syscall.SIGINT, syscall.SIGTERM)

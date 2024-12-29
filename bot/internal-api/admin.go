@@ -1,4 +1,4 @@
-package internal_api
+package internalApi
 
 //
 //import (

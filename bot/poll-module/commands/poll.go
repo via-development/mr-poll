@@ -3,8 +3,8 @@ package pollCommands
 import (
 	"github.com/disgoorg/disgo/discord"
 	"github.com/disgoorg/disgo/events"
-	baseUtil "mrpoll_go/bot/base-util"
-	"mrpoll_go/bot/poll-module/util"
+	baseUtil "mrpoll_bot/base-util"
+	pollUtil "mrpoll_bot/poll-module/util"
 )
 
 func PollCommand(interaction *events.ApplicationCommandInteractionCreate) error {
@@ -14,7 +14,7 @@ func PollCommand(interaction *events.ApplicationCommandInteractionCreate) error 
 	}
 
 	switch *subcommand {
-	case "yes-or-no", "multiple-choice", "single-choice":
+	case "yes-or-no", "multiple-choice", "single-choice", "submit-choice":
 		return pollCreateCommand(interaction)
 	case "list":
 		return pollListCommand(interaction)
@@ -25,7 +25,7 @@ func PollCommand(interaction *events.ApplicationCommandInteractionCreate) error 
 	default:
 		return interaction.CreateMessage(discord.MessageCreate{
 			Embeds: []discord.Embed{
-				baseUtil.MakeSimpleEmbed("I cannot find that command!"),
+				baseUtil.CommandNotFoundEmbed(),
 			},
 		})
 	}
@@ -34,19 +34,25 @@ func PollCommand(interaction *events.ApplicationCommandInteractionCreate) error 
 func pollCreateCommand(interaction *events.ApplicationCommandInteractionCreate) error {
 	return interaction.CreateMessage(discord.MessageCreate{
 		Embeds: []discord.Embed{
-			util.MakePollEmbed(),
+			pollUtil.MakePollEmbed(),
 		},
 	})
 }
 
 func pollOnlineCommand(interaction *events.ApplicationCommandInteractionCreate) error {
+	var guildId string
+	if guild, found := interaction.Guild(); found {
+		guildId = guild.ID.String()
+	} else {
+		guildId = interaction.Channel().ID().String()
+	}
 	return interaction.CreateMessage(discord.MessageCreate{
 		Components: []discord.ContainerComponent{
 			discord.ActionRowComponent{
 				discord.ButtonComponent{ // Leaked?!?!
-					URL:   "https://mrpoll.dev/polls",
+					URL:   "https://mrpoll.dev/polls/" + guildId,
 					Style: discord.ButtonStyleLink,
-					Label: "Create Poll",
+					Label: "View Polls",
 				},
 			},
 		},

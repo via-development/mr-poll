@@ -8,6 +8,16 @@ import (
 	"log"
 )
 
+var contexts = []discord.InteractionContextType{
+	discord.InteractionContextTypeGuild,
+	discord.InteractionContextTypeBotDM,
+	discord.InteractionContextTypePrivateChannel,
+}
+var intregationTypes = []discord.ApplicationIntegrationType{
+	discord.ApplicationIntegrationTypeGuildInstall,
+	discord.ApplicationIntegrationTypeUserInstall,
+}
+
 func main() {
 	err := env.Load(".env")
 	if err != nil {
@@ -22,20 +32,24 @@ func main() {
 	rests := rest.New(rest.NewClient(token))
 	commands := []discord.ApplicationCommandCreate{
 		discord.SlashCommandCreate{
-			Name:        "mr-poll",
-			Description: "Hi, I'm Mr Poll!",
+			Name:             "mr-poll",
+			Description:      "Hi, I'm Mr Poll!",
+			Contexts:         contexts,
+			IntegrationTypes: intregationTypes,
 		},
 		discord.SlashCommandCreate{
-			Name:        "help",
-			Description: "Hi, I'm Mr Poll!",
+			Name:             "help",
+			Description:      "Hi, I'm Mr Poll!",
+			Contexts:         contexts,
+			IntegrationTypes: intregationTypes,
 		},
 		discord.SlashCommandCreate{
 			Name:        "poll",
-			Description: "lol",
+			Description: "---",
 			Options: []discord.ApplicationCommandOption{
 				discord.ApplicationCommandOptionSubCommand{
 					Name:        "online",
-					Description: "Create a poll for Discord using our website.",
+					Description: "View and create polls on the website.",
 				},
 				discord.ApplicationCommandOptionSubCommand{
 					Name:        "yes-or-no",
@@ -43,13 +57,24 @@ func main() {
 				},
 				discord.ApplicationCommandOptionSubCommand{
 					Name:        "single-choice",
-					Description: "Create a yes or no poll.",
+					Description: "Create a single-choice poll.",
+				},
+				discord.ApplicationCommandOptionSubCommand{
+					Name:        "multiple-choice",
+					Description: "Create a multiple-choice poll.",
+				},
+				discord.ApplicationCommandOptionSubCommand{
+					Name:        "submit-choice",
+					Description: "Create a submit-choice poll.",
 				},
 			},
+			Contexts:         contexts,
+			IntegrationTypes: intregationTypes,
 		},
 	}
 
-	_, err = rests.SetGuildCommands(1199127749923709089, 976147096757497937, commands)
+	//_, err = rests.SetGuildCommands(1199127749923709089, 976147096757497937, []discord.ApplicationCommandCreate{})
+	_, err = rests.SetGlobalCommands(1199127749923709089, commands)
 	if err != nil {
 		panic(err)
 	}

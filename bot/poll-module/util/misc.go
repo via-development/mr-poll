@@ -1,4 +1,4 @@
-package util
+package pollUtil
 
 const (
 	FlagPollEnded               = 1 << iota

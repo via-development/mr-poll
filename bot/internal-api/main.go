@@ -1,4 +1,4 @@
-package internal_api
+package internalApi
 
 import (
 	"github.com/disgoorg/disgo/bot"
@@ -8,6 +8,10 @@ import (
 type InternalApi struct {
 	Echo      *echo.Echo
 	BotClient *bot.Client
+}
+
+func (api *InternalApi) Close() {
+	api.Close()
 }
 
 func NewApi(client *bot.Client) *InternalApi {
