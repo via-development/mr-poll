@@ -7,14 +7,14 @@ import (
 
 type InternalApi struct {
 	Echo      *echo.Echo
-	BotClient *bot.Client
+	BotClient bot.Client
 }
 
 func (api *InternalApi) Close() {
 	api.Close()
 }
 
-func NewApi(client *bot.Client) *InternalApi {
+func NewApi(client bot.Client) *InternalApi {
 	api := &InternalApi{
 		BotClient: client,
 		Echo:      echo.New(),

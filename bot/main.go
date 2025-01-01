@@ -9,11 +9,7 @@ import (
 	"github.com/disgoorg/disgo/httpserver"
 	"github.com/gofor-little/env"
 	"log"
-	mpHandlers "mrpoll_bot/event-handlers"
-	generalModule "mrpoll_bot/general-module"
 	internalApi "mrpoll_bot/internal-api"
-	pollModule "mrpoll_bot/poll-module"
-	suggestionModule "mrpoll_bot/suggestion-module"
 	"os"
 	"os/signal"
 	"syscall"
@@ -43,8 +39,8 @@ func main() {
 		bot.WithCacheConfigOpts(
 			cache.WithCaches(cache.FlagGuilds, cache.FlagChannels),
 		),
-		bot.WithEventListenerFunc(mpHandlers.CommandHandler),
-		bot.WithEventListenerFunc(mpHandlers.ComponentHandler),
+		bot.WithEventListenerFunc(CommandHandler),
+		bot.WithEventListenerFunc(ComponentHandler),
 		bot.WithGatewayConfigOpts(
 			gateway.WithIntents(gateway.IntentGuilds),
 		),
@@ -61,11 +57,7 @@ func main() {
 	}
 	defer client.Close(context.TODO())
 
-	generalModule.InitGeneralModule(&client)
-	pollModule.InitPollModule(&client)
-	suggestionModule.InitSuggestionModule(&client)
-
-	api := internalApi.NewApi(&client)
+	api := internalApi.NewApi(client)
 	defer api.Close()
 
 	s := make(chan os.Signal, 1)

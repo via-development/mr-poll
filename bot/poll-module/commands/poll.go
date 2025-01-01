@@ -1,6 +1,7 @@
 package pollCommands
 
 import (
+	"fmt"
 	"github.com/disgoorg/disgo/discord"
 	"github.com/disgoorg/disgo/events"
 	baseUtil "mrpoll_bot/base-util"
@@ -32,6 +33,11 @@ func PollCommand(interaction *events.ApplicationCommandInteractionCreate) error 
 }
 
 func pollCreateCommand(interaction *events.ApplicationCommandInteractionCreate) error {
+	err := pollUtil.CreatePoll(interaction.Client(), pollUtil.PollCreateData{
+		ChannelId: 979426067678888046,
+		GuildId:   976147096757497937,
+	})
+	fmt.Println(err)
 	return interaction.CreateMessage(discord.MessageCreate{
 		Embeds: []discord.Embed{
 			pollUtil.MakePollEmbed(),
