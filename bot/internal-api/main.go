@@ -24,6 +24,8 @@ func NewApi(client bot.Client) *InternalApi {
 	//apiGroup.GET("", func(c echo.Context) error {
 	//	return nil
 	//})
+
+	api.Echo.HideBanner = true
 	api.Echo.Logger.Fatal(api.Echo.Start(":4003"))
 
 	return api

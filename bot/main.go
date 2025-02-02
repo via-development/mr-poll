@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"github.com/disgoorg/disgo"
 	"github.com/disgoorg/disgo/bot"
 	"github.com/disgoorg/disgo/cache"
@@ -9,6 +10,7 @@ import (
 	"github.com/disgoorg/disgo/httpserver"
 	"github.com/gofor-little/env"
 	"log"
+	"mrpoll_bot/database"
 	internalApi "mrpoll_bot/internal-api"
 	"os"
 	"os/signal"
@@ -37,7 +39,7 @@ func main() {
 			httpserver.WithAddress(":4002"),
 		),
 		bot.WithCacheConfigOpts(
-			cache.WithCaches(cache.FlagGuilds, cache.FlagChannels),
+			cache.WithCaches(cache.FlagGuilds, cache.FlagChannels, cache.FlagMembers, cache.FlagRoles),
 		),
 		bot.WithEventListenerFunc(CommandHandler),
 		bot.WithEventListenerFunc(ComponentHandler),
@@ -56,6 +58,9 @@ func main() {
 		panic(err)
 	}
 	defer client.Close(context.TODO())
+	fmt.Println("[Disgo]: Operational!")
+
+	database.InitDB()
 
 	api := internalApi.NewApi(client)
 	defer api.Close()

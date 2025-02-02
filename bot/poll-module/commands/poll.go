@@ -5,6 +5,7 @@ import (
 	"github.com/disgoorg/disgo/discord"
 	"github.com/disgoorg/disgo/events"
 	baseUtil "mrpoll_bot/base-util"
+	pollDatabase "mrpoll_bot/poll-module/database"
 	pollUtil "mrpoll_bot/poll-module/util"
 )
 
@@ -33,14 +34,43 @@ func PollCommand(interaction *events.ApplicationCommandInteractionCreate) error 
 }
 
 func pollCreateCommand(interaction *events.ApplicationCommandInteractionCreate) error {
-	err := pollUtil.CreatePoll(interaction.Client(), pollUtil.PollCreateData{
-		ChannelId: 979426067678888046,
-		GuildId:   976147096757497937,
-	})
-	fmt.Println(err)
+	pollData := pollDatabase.PollData{
+		Type:      pollDatabase.YesOrNoType,
+		ChannelId: interaction.Channel().ID().String(),
+		Question:  "Holy Cow?",
+		Options: []pollDatabase.PollOptionData{
+			{
+				OptionId: 0,
+				Name:     "Yes",
+				Voters:   make([]string, 0),
+			},
+			{
+				OptionId: 1,
+				Name:     "No",
+				Voters:   make([]string, 0),
+			},
+		},
+	}
+
+	if guild, found := interaction.Guild(); found {
+		pollData.GuildId = guild.ID.String()
+	}
+
+	if pollData.GuildId == "" {
+		_, err := pollUtil.CreatePollDM(interaction, pollData)
+		return err
+	}
+
+	message, err := pollUtil.CreatePoll(interaction.Client(), pollData)
+
+	if err != nil {
+		return err
+	}
+
 	return interaction.CreateMessage(discord.MessageCreate{
+		Flags: discord.MessageFlagEphemeral,
 		Embeds: []discord.Embed{
-			pollUtil.MakePollEmbed(),
+			baseUtil.MakeSimpleEmbed(fmt.Sprintf("Created [poll](https://discord.com/channels/%s/%s/%s)!", pollData.GuildId, message.ChannelID, message.ID)),
 		},
 	})
 }
@@ -52,6 +82,7 @@ func pollOnlineCommand(interaction *events.ApplicationCommandInteractionCreate) 
 	} else {
 		guildId = interaction.Channel().ID().String()
 	}
+
 	return interaction.CreateMessage(discord.MessageCreate{
 		Components: []discord.ContainerComponent{
 			discord.ActionRowComponent{
