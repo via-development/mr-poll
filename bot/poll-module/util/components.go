@@ -1,8 +1,9 @@
 package pollUtil
 
 import (
+	"fmt"
 	"github.com/disgoorg/disgo/discord"
-	pollDatabase "mrpoll_bot/poll-module/database"
+	"mrpoll_bot/database"
 )
 
 var menuButton = discord.ButtonComponent{
@@ -12,37 +13,46 @@ var menuButton = discord.ButtonComponent{
 }
 
 // MakePollComponents makes components for a poll with the poll data provided.
-func MakePollComponents(data pollDatabase.PollData) discord.ActionRowComponent {
+func MakePollComponents(data database.PollData) discord.ActionRowComponent {
 	switch data.Type {
-	case pollDatabase.YesOrNoType:
-		return discord.ActionRowComponent{
-			discord.ButtonComponent{
-				Emoji:    &discord.ComponentEmoji{ID: 1268234822304792676, Name: "e"},
-				CustomID: "poll:option-0",
-				Style:    discord.ButtonStyleSuccess,
-			},
-			discord.ButtonComponent{
-				Emoji:    &discord.ComponentEmoji{ID: 1268234748988493905, Name: "e"},
-				CustomID: "poll:option-1",
-				Style:    discord.ButtonStyleDanger,
-			},
-			menuButton,
+	case database.YesOrNoType, database.SingleChoiceType:
+		var options discord.ActionRowComponent
+		for i, op := range data.Options {
+			e := op.ApiEmoji()
+			s := discord.ButtonStyleSecondary
+			if data.Type == database.YesOrNoType {
+				if i == 0 {
+					s = discord.ButtonStyleSuccess
+				} else {
+					s = discord.ButtonStyleDanger
+				}
+			}
+			options = append(options, discord.ButtonComponent{
+				Emoji:    &e,
+				CustomID: fmt.Sprint("poll:option-", i),
+				Style:    s,
+			})
 		}
-	//case pollDatabase.SingleChoiceType:
-	//	return discord.ActionRowComponent{
-	//		discord.ButtonComponent{
-	//			Label:    "a",
-	//			CustomID: "a",
-	//		},
-	//	}
-	//case pollDatabase.MultipleChoiceType:
-	//	return discord.ActionRowComponent{
-	//		discord.ButtonComponent{
-	//			Label:    "a",
-	//			CustomID: "a",
-	//		},
-	//	}
-	//case pollDatabase.SubmitChoiceType:
+		options = append(options, menuButton)
+		return options
+	case database.MultipleChoiceType:
+		var options []discord.StringSelectMenuOption
+		for _, opt := range data.Options {
+			e := opt.ApiEmoji()
+			options = append(options, discord.StringSelectMenuOption{
+				Label: opt.Name,
+				Value: fmt.Sprint("option-", opt.OptionId),
+				Emoji: &e,
+			})
+		}
+		return discord.ActionRowComponent{
+			discord.StringSelectMenuComponent{
+				CustomID:  "poll:opts",
+				Options:   options,
+				MaxValues: int(data.NumOfChoices),
+			},
+		}
+	//case database.SubmitChoiceType:
 	//	return discord.ActionRowComponent{
 	//		discord.ButtonComponent{
 	//			Label:    "a",

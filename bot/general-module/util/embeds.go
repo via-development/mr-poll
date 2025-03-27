@@ -2,26 +2,26 @@ package generalUtil
 
 import (
 	"github.com/disgoorg/disgo/discord"
-	baseUtil "mrpoll_bot/base-util"
+	"mrpoll_bot/util"
 )
 
 func IntroductoryEmbed() discord.Embed {
 	return discord.Embed{
 		Title: "Welcome to Mr Poll!",
-		Color: baseUtil.Config.EmbedColor,
+		Color: util.Config.EmbedColor,
 	}
 }
 
-func PollPage() discord.Embed {
+func PollHelpPage() discord.Embed {
 	return discord.Embed{
 		Title: "Poller",
-		Color: baseUtil.Config.EmbedColor,
+		Color: util.Config.EmbedColor,
 	}
 }
 
-func SuggestionPage() discord.Embed {
+func SuggestionHelpPage() discord.Embed {
 	return discord.Embed{
 		Title: "Suggestor",
-		Color: baseUtil.Config.EmbedColor,
+		Color: util.Config.EmbedColor,
 	}
 }

@@ -4,14 +4,14 @@ import (
 	"fmt"
 	"github.com/disgoorg/disgo/discord"
 	"github.com/disgoorg/disgo/events"
-	baseUtil "mrpoll_bot/base-util"
 	generalModule "mrpoll_bot/general-module"
 	pollModule "mrpoll_bot/poll-module"
 	suggestionModule "mrpoll_bot/suggestion-module"
+	"mrpoll_bot/util"
 	"strings"
 )
 
-var modules = []*baseUtil.Module{
+var modules = []*util.Module{
 	generalModule.Module,
 	pollModule.Module,
 	suggestionModule.Module,

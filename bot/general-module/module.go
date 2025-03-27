@@ -1,17 +1,17 @@
 package generalModule
 
 import (
-	baseUtil "mrpoll_bot/base-util"
 	generalCommands "mrpoll_bot/general-module/commands"
 	generalSelectMenus "mrpoll_bot/general-module/select-menus"
+	"mrpoll_bot/util"
 )
 
-var Module = &baseUtil.Module{
-	Commands: map[string]baseUtil.ModuleCommand{
+var Module = &util.Module{
+	Commands: map[string]util.ModuleCommand{
 		"help":    generalCommands.MrPollCommand,
 		"mr-poll": generalCommands.MrPollCommand,
 	},
-	SelectMenus: []*baseUtil.ModuleComponent{
+	SelectMenus: []*util.ModuleComponent{
 		{"help:", generalSelectMenus.MrPollSelectMenu},
 	},
 }

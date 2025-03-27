@@ -1,15 +1,29 @@
 package pollUtil
 
 import (
+	"fmt"
 	"github.com/disgoorg/disgo/discord"
-	baseUtil "mrpoll_bot/base-util"
-	pollDatabase "mrpoll_bot/poll-module/database"
+	"mrpoll_bot/database"
+	"mrpoll_bot/util"
+	"sort"
 )
 
 // MakePollEmbed makes an embed for a poll with the poll data provided.
-func MakePollEmbed(data pollDatabase.PollData) discord.Embed {
+func MakePollEmbed(data database.PollData) discord.Embed {
+	optionStr := ""
+	sort.Slice(data.Options, func(i, j int) bool {
+		return data.Options[i].OptionId < data.Options[j].OptionId
+	})
+	for _, option := range data.Options {
+		optionStr += fmt.Sprintf("%s `%d votes` %s\n", option.ChatEmoji(), len(option.Voters), option.Name)
+	}
 	return discord.Embed{
-		Title: data.Question,
-		Color: baseUtil.Config.EmbedColor,
+		Author: &discord.EmbedAuthor{
+			Name:    "Someone asked",
+			IconURL: "https://ava.viadev.xyz/" + data.UserId,
+		},
+		Title:       data.Question,
+		Description: optionStr,
+		Color:       util.Config.EmbedColor,
 	}
 }

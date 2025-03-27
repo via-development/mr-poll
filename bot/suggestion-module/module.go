@@ -1,12 +1,12 @@
 package suggestionModule
 
 import (
-	baseUtil "mrpoll_bot/base-util"
 	suggestionCommands "mrpoll_bot/suggestion-module/commands"
+	"mrpoll_bot/util"
 )
 
-var Module = &baseUtil.Module{
-	Commands: map[string]baseUtil.ModuleCommand{
+var Module = &util.Module{
+	Commands: map[string]util.ModuleCommand{
 		"suggest": suggestionCommands.SuggestCommand,
 	},
 }

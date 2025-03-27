@@ -11,9 +11,9 @@ func MrPollSelectMenu(interaction *events.ComponentInteractionCreate) error {
 	var embed discord.Embed
 	switch values[0] {
 	case "poll":
-		embed = generalUtil.PollPage()
+		embed = generalUtil.PollHelpPage()
 	case "suggestion":
-		embed = generalUtil.SuggestionPage()
+		embed = generalUtil.SuggestionHelpPage()
 	default:
 		embed = generalUtil.IntroductoryEmbed()
 	}

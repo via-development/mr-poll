@@ -12,6 +12,7 @@ import (
 	"log"
 	"mrpoll_bot/database"
 	internalApi "mrpoll_bot/internal-api"
+	"mrpoll_bot/util"
 	"os"
 	"os/signal"
 	"syscall"
@@ -45,12 +46,17 @@ func main() {
 		bot.WithEventListenerFunc(ComponentHandler),
 		bot.WithGatewayConfigOpts(
 			gateway.WithIntents(gateway.IntentGuilds),
+			gateway.WithShardCount(util.Config.ShardCount),
+			gateway.WithPresenceOpts(gateway.WithCustomActivity("/mr-poll | Not made with AI!")),
 		),
 	)
 	if err != nil {
 		panic(err)
 	}
 
+	database.InitDB()
+
+	fmt.Println("[Disgo]: Connecting...")
 	if err = client.OpenGateway(context.TODO()); err != nil {
 		panic(err)
 	}
@@ -59,8 +65,6 @@ func main() {
 	}
 	defer client.Close(context.TODO())
 	fmt.Println("[Disgo]: Operational!")
-
-	database.InitDB()
 
 	api := internalApi.NewApi(client)
 	defer api.Close()
