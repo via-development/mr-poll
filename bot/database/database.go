@@ -12,6 +12,7 @@ import (
 )
 
 var DB *gorm.DB
+var BotSettingsC BotSettings
 
 func InitDB() {
 	dsn, err := env.MustGet("DSN")
@@ -41,6 +42,23 @@ func InitDB() {
 	if migrateFlag {
 		migrateSchemas()
 		os.Exit(0)
+	}
+
+	var botId string
+	if botId, err = env.MustGet("BOT_ID"); err != nil {
+		panic("BOT_ID environment variable not set")
+	}
+
+	DB.First(&BotSettings{BotId: botId})
+	if BotSettingsC.BotId == "" {
+		BotSettingsC = BotSettings{
+			BotId:           botId,
+			DisabledModules: []string{},
+		}
+		err = DB.Create(&BotSettingsC).Error
+		if err != nil {
+			panic(err)
+		}
 	}
 }
 

@@ -13,8 +13,8 @@ var menuButton = discord.ButtonComponent{
 }
 
 // MakePollComponents makes components for a poll with the poll data provided.
-func MakePollComponents(data database.PollData) discord.ActionRowComponent {
-	// TODO: rewrite function
+func MakePollComponents(data database.PollData) []discord.ContainerComponent {
+	var components []discord.ContainerComponent
 	switch data.Type {
 	case database.YesOrNoType, database.SingleChoiceType:
 		var options discord.ActionRowComponent
@@ -35,7 +35,9 @@ func MakePollComponents(data database.PollData) discord.ActionRowComponent {
 			})
 		}
 		options = append(options, menuButton)
-		return options
+		for i := range len(options) / 5 {
+			components = append(components, options[i*5:i*5+5])
+		}
 	case database.MultipleChoiceType, database.SubmitChoiceType:
 		var options []discord.StringSelectMenuOption
 		for _, opt := range data.Options {
@@ -52,15 +54,16 @@ func MakePollComponents(data database.PollData) discord.ActionRowComponent {
 				Value: "option:submit",
 			})
 		}
-		return discord.ActionRowComponent{
+		components[0] = discord.ActionRowComponent{
 			discord.StringSelectMenuComponent{
 				CustomID:  "poll:opts",
 				Options:   options,
 				MaxValues: int(data.NumOfChoices),
 			},
 		}
+		components[1] = discord.ActionRowComponent{menuButton}
 	default:
-		return discord.ActionRowComponent{
+		components[0] = discord.ActionRowComponent{
 			discord.ButtonComponent{
 				Label:    "Something went wrong!",
 				CustomID: "oops",
@@ -69,4 +72,6 @@ func MakePollComponents(data database.PollData) discord.ActionRowComponent {
 			},
 		}
 	}
+
+	return components
 }

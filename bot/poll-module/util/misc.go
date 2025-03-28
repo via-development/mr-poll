@@ -9,7 +9,7 @@ import (
 func PollMessage(data database.PollData) discord.MessageCreate {
 	return discord.MessageCreate{
 		Embeds:     MakePollEmbeds(data),
-		Components: []discord.ContainerComponent{MakePollComponents(data)},
+		Components: MakePollComponents(data),
 	}
 }
 

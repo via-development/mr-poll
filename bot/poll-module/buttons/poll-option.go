@@ -24,9 +24,10 @@ func PollOptionButton(interaction *events.ComponentInteractionCreate) error {
 		if !util.NumRegex.Match([]byte(s)) {
 			// Migrates Poll
 			pollEmbeds := pollUtil.MakePollEmbeds(pollData)
+			components := pollUtil.MakePollComponents(pollData)
 			err := interaction.UpdateMessage(discord.MessageUpdate{
 				Embeds:     &pollEmbeds,
-				Components: &[]discord.ContainerComponent{pollUtil.MakePollComponents(pollData)},
+				Components: &components,
 			})
 			interaction.Client().Rest().CreateFollowupMessage(interaction.Client().ID(), interaction.Token(), discord.MessageCreate{
 				Flags:   discord.MessageFlagEphemeral,
@@ -47,13 +48,9 @@ func PollOptionButton(interaction *events.ComponentInteractionCreate) error {
 	}
 
 	pollEmbeds := pollUtil.MakePollEmbeds(pollData)
-	messageEdit := discord.MessageUpdate{
+	err = interaction.UpdateMessage(discord.MessageUpdate{
 		Embeds: &pollEmbeds,
-	}
-	if pollData.Type == database.SubmitChoiceType {
-		messageEdit.Components = &[]discord.ContainerComponent{pollUtil.MakePollComponents(pollData)}
-	}
-	err = interaction.UpdateMessage(messageEdit)
+	})
 
 	interaction.Client().Rest().CreateFollowupMessage(interaction.Client().ID(), interaction.Token(), discord.MessageCreate{
 		Flags:   discord.MessageFlagEphemeral,
