@@ -26,7 +26,7 @@ func PollOptionSelectMenu(interaction *events.ComponentInteractionCreate) error 
 		for i := range sv {
 			s := sv[i][len("option-"):]
 			if s == "submit" {
-				interaction.Modal()
+				return interaction.Modal(pollUtil.PollOptionSubmitModel())
 			}
 			n, _ := strconv.Atoi(s)
 			selectedOptions = append(selectedOptions, n)
@@ -34,15 +34,13 @@ func PollOptionSelectMenu(interaction *events.ComponentInteractionCreate) error 
 	}
 
 	action, err := pollUtil.VotePoll(pollData, userId, selectedOptions)
-	fmt.Printf("%v\n", pollData)
 	if err != nil {
 		return err
 	}
 
+	pollEmbeds := pollUtil.MakePollEmbeds(pollData)
 	err = interaction.UpdateMessage(discord.MessageUpdate{
-		Embeds: &[]discord.Embed{
-			pollUtil.MakePollEmbed(pollData),
-		},
+		Embeds: &pollEmbeds,
 	})
 
 	_, _ = interaction.Client().Rest().CreateFollowupMessage(interaction.Client().ID(), interaction.Token(), discord.MessageCreate{

@@ -14,6 +14,7 @@ var menuButton = discord.ButtonComponent{
 
 // MakePollComponents makes components for a poll with the poll data provided.
 func MakePollComponents(data database.PollData) discord.ActionRowComponent {
+	// TODO: rewrite function
 	switch data.Type {
 	case database.YesOrNoType, database.SingleChoiceType:
 		var options discord.ActionRowComponent
@@ -35,7 +36,7 @@ func MakePollComponents(data database.PollData) discord.ActionRowComponent {
 		}
 		options = append(options, menuButton)
 		return options
-	case database.MultipleChoiceType:
+	case database.MultipleChoiceType, database.SubmitChoiceType:
 		var options []discord.StringSelectMenuOption
 		for _, opt := range data.Options {
 			e := opt.ApiEmoji()
@@ -45,6 +46,12 @@ func MakePollComponents(data database.PollData) discord.ActionRowComponent {
 				Emoji: &e,
 			})
 		}
+		if len(options) < 10 && data.Type == database.SubmitChoiceType {
+			options = append(options, discord.StringSelectMenuOption{
+				Label: "Submit your answer!",
+				Value: "option:submit",
+			})
+		}
 		return discord.ActionRowComponent{
 			discord.StringSelectMenuComponent{
 				CustomID:  "poll:opts",
@@ -52,13 +59,6 @@ func MakePollComponents(data database.PollData) discord.ActionRowComponent {
 				MaxValues: int(data.NumOfChoices),
 			},
 		}
-	//case database.SubmitChoiceType:
-	//	return discord.ActionRowComponent{
-	//		discord.ButtonComponent{
-	//			Label:    "a",
-	//			CustomID: "a",
-	//		},
-	//	}
 	default:
 		return discord.ActionRowComponent{
 			discord.ButtonComponent{

@@ -22,8 +22,17 @@ func PollOptionButton(interaction *events.ComponentInteractionCreate) error {
 	{
 		s := interaction.Data.CustomID()[len("poll:option-"):]
 		if !util.NumRegex.Match([]byte(s)) {
-			// TODO: migrate poll
-			return nil
+			// Migrates Poll
+			pollEmbeds := pollUtil.MakePollEmbeds(pollData)
+			err := interaction.UpdateMessage(discord.MessageUpdate{
+				Embeds:     &pollEmbeds,
+				Components: &[]discord.ContainerComponent{pollUtil.MakePollComponents(pollData)},
+			})
+			interaction.Client().Rest().CreateFollowupMessage(interaction.Client().ID(), interaction.Token(), discord.MessageCreate{
+				Flags:   discord.MessageFlagEphemeral,
+				Content: "Hey, I have just updated this poll to work with the new system, please vote again!",
+			})
+			return err
 		}
 		n, _ := strconv.Atoi(s)
 		selectedOptions = []int{n}
@@ -37,15 +46,18 @@ func PollOptionButton(interaction *events.ComponentInteractionCreate) error {
 		return err
 	}
 
-	interaction.UpdateMessage(discord.MessageUpdate{
-		Embeds: &[]discord.Embed{
-			pollUtil.MakePollEmbed(pollData),
-		},
-	})
+	pollEmbeds := pollUtil.MakePollEmbeds(pollData)
+	messageEdit := discord.MessageUpdate{
+		Embeds: &pollEmbeds,
+	}
+	if pollData.Type == database.SubmitChoiceType {
+		messageEdit.Components = &[]discord.ContainerComponent{pollUtil.MakePollComponents(pollData)}
+	}
+	err = interaction.UpdateMessage(messageEdit)
 
 	interaction.Client().Rest().CreateFollowupMessage(interaction.Client().ID(), interaction.Token(), discord.MessageCreate{
 		Flags:   discord.MessageFlagEphemeral,
 		Content: fmt.Sprintf("Your vote was %s", action),
 	})
-	return nil
+	return err
 }

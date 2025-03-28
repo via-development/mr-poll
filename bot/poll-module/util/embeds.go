@@ -8,8 +8,8 @@ import (
 	"sort"
 )
 
-// MakePollEmbed makes an embed for a poll with the poll data provided.
-func MakePollEmbed(data database.PollData) discord.Embed {
+// MakePollEmbeds makes the embeds for a poll with the poll data provided.
+func MakePollEmbeds(data database.PollData) []discord.Embed {
 	optionStr := ""
 	sort.Slice(data.Options, func(i, j int) bool {
 		return data.Options[i].OptionId < data.Options[j].OptionId
@@ -17,13 +17,33 @@ func MakePollEmbed(data database.PollData) discord.Embed {
 	for _, option := range data.Options {
 		optionStr += fmt.Sprintf("%s `%d votes` %s\n", option.ChatEmoji(), len(option.Voters), option.Name)
 	}
-	return discord.Embed{
+
+	pollEmbeds := []discord.Embed{{
 		Author: &discord.EmbedAuthor{
 			Name:    "Someone asked",
 			IconURL: "https://ava.viadev.xyz/" + data.UserId,
 		},
 		Title:       data.Question,
+		URL:         "https://mrpoll.dev/vote",
 		Description: optionStr,
 		Color:       util.Config.EmbedColor,
+	}}
+
+	if data.Images != nil {
+		pollEmbeds[0].Image = &discord.EmbedResource{
+			URL: (*data.Images)[0],
+		}
+
+		for i := range len(*data.Images) - 1 {
+			pollEmbeds = append(pollEmbeds, discord.Embed{
+				URL: "https://mrpoll.dev/vote",
+				Image: &discord.EmbedResource{
+					URL: (*data.Images)[i],
+				},
+			})
+		}
+
 	}
+
+	return pollEmbeds
 }

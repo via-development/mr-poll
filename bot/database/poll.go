@@ -13,13 +13,16 @@ type PollData struct {
 	MessageId string `gorm:"primaryKey"`
 	ChannelId string `gorm:"not null"`
 	GuildId   *string
-	UserId    string `gorm:"not null"`
+
+	UserId string   `gorm:"not null"`
+	User   UserData `gorm:"foreignKey:UserId;references:UserId"`
 
 	Question      string           `gorm:"not null"`
 	Options       []PollOptionData `gorm:"foreignKey:MessageId;references:MessageId"`
 	PollRoles     []PollRoleData   `gorm:"foreignKey:MessageId;references:MessageId"`
 	AnonymousMode uint             `gorm:"not null"`
 	NumOfChoices  uint             `gorm:"not null"`
+	Images        *pq.StringArray
 
 	EndedAt     *time.Time
 	EnderUserId *string
