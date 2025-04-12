@@ -65,6 +65,11 @@ func main() {
 							Description: "The question for the poll.",
 							Required:    true,
 						},
+						discord.ApplicationCommandOptionString{
+							Name:        "timer",
+							Description: "How long the poll should last",
+							Required:    false,
+						},
 					},
 				},
 				discord.ApplicationCommandOptionSubCommand{
@@ -81,6 +86,11 @@ func main() {
 						pOption("3", "third", false),
 						pOption("4", "fourth", false),
 						pOption("5", "fifth", false),
+						discord.ApplicationCommandOptionString{
+							Name:        "timer",
+							Description: "How long the poll should last",
+							Required:    false,
+						},
 					},
 				},
 				discord.ApplicationCommandOptionSubCommand{
@@ -97,6 +107,11 @@ func main() {
 						pOption("3", "third", false),
 						pOption("4", "fourth", false),
 						pOption("5", "fifth", false),
+						discord.ApplicationCommandOptionString{
+							Name:        "timer",
+							Description: "How long the poll should last",
+							Required:    false,
+						},
 					},
 				},
 				discord.ApplicationCommandOptionSubCommand{
@@ -107,6 +122,11 @@ func main() {
 							Name:        "question",
 							Description: "The question for the poll.",
 							Required:    true,
+						},
+						discord.ApplicationCommandOptionString{
+							Name:        "timer",
+							Description: "How long the poll should last",
+							Required:    false,
 						},
 					},
 				},

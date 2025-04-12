@@ -49,7 +49,7 @@ func InitDB() {
 		panic("BOT_ID environment variable not set")
 	}
 
-	DB.First(&BotSettings{BotId: botId})
+	DB.First(&BotSettingsC, &BotSettings{BotId: botId})
 	if BotSettingsC.BotId == "" {
 		BotSettingsC = BotSettings{
 			BotId:           botId,
@@ -72,6 +72,18 @@ func migrateSchemas() {
 		panic(err)
 	}
 	err = DB.AutoMigrate(&PollRoleData{})
+	if err != nil {
+		panic(err)
+	}
+	err = DB.AutoMigrate(&BotSettings{})
+	if err != nil {
+		panic(err)
+	}
+	err = DB.AutoMigrate(&UserData{})
+	if err != nil {
+		panic(err)
+	}
+	err = DB.AutoMigrate(&UserStatsData{})
 	if err != nil {
 		panic(err)
 	}

@@ -34,7 +34,10 @@ func CreatePoll(client bot.Client, data database.PollData) (*discord.Message, er
 	}
 
 	// Send poll message in channel
-	message, err := client.Rest().CreateMessage(channelId, PollMessage(data))
+	message, err := client.Rest().CreateMessage(channelId, discord.MessageCreate{
+		Embeds:     MakePollEmbeds(data),
+		Components: MakePollComponents(data, client),
+	})
 	if err != nil {
 		return nil, err
 	}
@@ -50,7 +53,10 @@ func CreatePoll(client bot.Client, data database.PollData) (*discord.Message, er
 
 func CreatePollDM(interaction *events.ApplicationCommandInteractionCreate, data database.PollData) (*discord.Message, error) {
 	// Send poll message in DM
-	err := interaction.CreateMessage(PollMessage(data))
+	err := interaction.CreateMessage(discord.MessageCreate{
+		Embeds:     MakePollEmbeds(data),
+		Components: MakePollComponents(data, interaction.Client()),
+	})
 	if err != nil {
 		return nil, err
 	}
@@ -87,9 +93,14 @@ func VotePoll(pollData database.PollData, userId string, optionIds []int) (strin
 				action = "removed"
 			}
 
-			pollData.Options[i].Voters = append(option.Voters[:index], option.Voters[index+1:]...)
-			if err := database.DB.Save(&pollData.Options[i]).Error; err != nil {
-				return "", err
+			if pollData.Type == database.SubmitChoiceType && len(option.Voters) <= 1 {
+				database.DB.Delete(&option)
+				pollData.Options = append(pollData.Options[:i], pollData.Options[i+1:]...)
+			} else {
+				pollData.Options[i].Voters = append(option.Voters[:index], option.Voters[index+1:]...)
+				if err := database.DB.Save(&pollData.Options[i]).Error; err != nil {
+					return "", err
+				}
 			}
 
 		} else if slices.Index(optionIds, int(option.OptionId)) != -1 { // They haven't voted on the option yet

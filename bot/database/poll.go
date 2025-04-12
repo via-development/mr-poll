@@ -1,6 +1,7 @@
 package database
 
 import (
+	"github.com/disgoorg/disgo/bot"
 	"github.com/disgoorg/disgo/discord"
 	"github.com/disgoorg/snowflake/v2"
 	"github.com/lib/pq"
@@ -9,20 +10,20 @@ import (
 )
 
 type PollData struct {
-	Type      uint   `gorm:"not null"`
-	MessageId string `gorm:"primaryKey"`
-	ChannelId string `gorm:"not null"`
+	Type      PollType `gorm:"not null"`
+	MessageId string   `gorm:"primaryKey"`
+	ChannelId string   `gorm:"not null"`
 	GuildId   *string
 
-	UserId string   `gorm:"not null"`
-	User   UserData `gorm:"foreignKey:UserId;references:UserId"`
+	UserId string `gorm:"not null"`
+	user   *UserData
 
 	Question      string           `gorm:"not null"`
 	Options       []PollOptionData `gorm:"foreignKey:MessageId;references:MessageId"`
 	PollRoles     []PollRoleData   `gorm:"foreignKey:MessageId;references:MessageId"`
-	AnonymousMode uint             `gorm:"not null"`
+	AnonymousMode AnonymousType    `gorm:"not null"`
 	NumOfChoices  uint             `gorm:"not null"`
-	Images        *pq.StringArray
+	Images        *pq.StringArray  `gorm:"type:text[]"`
 
 	EndedAt     *time.Time
 	EnderUserId *string
@@ -52,6 +53,7 @@ type PollOptionData struct {
 	Name      string         `gorm:"not null"`
 	Emoji     string         `gorm:"not null"`
 	Voters    pq.StringArray `gorm:"type:text[]"`
+	SubmitBy  *string
 }
 
 type PollRoleData struct {
@@ -76,6 +78,25 @@ func (p *PollData) GuildIdSnowflake() *snowflake.ID {
 	}
 	s := snowflake.MustParse(*p.GuildId)
 	return &s
+}
+
+func (p *PollData) UserIdSnowflake() *snowflake.ID {
+	s := snowflake.MustParse(p.UserId)
+	return &s
+}
+
+func (p *PollData) SetUser(user UserData) {
+	p.user = &user
+	DB.Save(&user)
+}
+
+func (p *PollData) FetchUser(client bot.Client) {
+	userData := FetchUser(p.UserId, client)
+	p.user = userData
+}
+
+func (p *PollData) User() *UserData {
+	return p.user
 }
 
 func (o *PollOptionData) parseEmoji() (string, bool) {

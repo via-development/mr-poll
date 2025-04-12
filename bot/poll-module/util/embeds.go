@@ -1,6 +1,7 @@
 package pollUtil
 
 import (
+	"encoding/json"
 	"fmt"
 	"github.com/disgoorg/disgo/discord"
 	"mrpoll_bot/database"
@@ -17,10 +18,15 @@ func MakePollEmbeds(data database.PollData) []discord.Embed {
 	for _, option := range data.Options {
 		optionStr += fmt.Sprintf("%s `%d votes` %s\n", option.ChatEmoji(), len(option.Voters), option.Name)
 	}
-
+	ud, _ := json.Marshal(data.User())
+	fmt.Printf("%v\n", string(ud))
+	fmt.Printf("%v\n", discord.EmbedAuthor{
+		Name:    data.User().DisplayName,
+		IconURL: "https://ava.viadev.xyz/" + data.UserId,
+	})
 	pollEmbeds := []discord.Embed{{
 		Author: &discord.EmbedAuthor{
-			Name:    "Someone asked",
+			Name:    data.User().DisplayName,
 			IconURL: "https://ava.viadev.xyz/" + data.UserId,
 		},
 		Title:       data.Question,

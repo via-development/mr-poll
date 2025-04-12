@@ -2,16 +2,7 @@ package pollUtil
 
 import (
 	"github.com/disgoorg/disgo/discord"
-	"mrpoll_bot/database"
 )
-
-// PollMessage generates the options for the poll's message, embed and component.
-func PollMessage(data database.PollData) discord.MessageCreate {
-	return discord.MessageCreate{
-		Embeds:     MakePollEmbeds(data),
-		Components: MakePollComponents(data),
-	}
-}
 
 func PollNotFoundMessage() discord.MessageCreate {
 	return discord.MessageCreate{
@@ -20,10 +11,10 @@ func PollNotFoundMessage() discord.MessageCreate {
 	}
 }
 
-func PollOptionSubmitModel() discord.ModalCreate {
+func PollOptionSubmitModel(messageId string) discord.ModalCreate {
 	return discord.ModalCreate{
 		Title:    "Submit your answer!",
-		CustomID: "poll:submit",
+		CustomID: "poll:option-submit:" + messageId,
 		Components: []discord.ContainerComponent{
 			discord.ActionRowComponent{
 				discord.TextInputComponent{

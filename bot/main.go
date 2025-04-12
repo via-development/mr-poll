@@ -44,8 +44,10 @@ func main() {
 		),
 		bot.WithEventListenerFunc(CommandHandler),
 		bot.WithEventListenerFunc(ComponentHandler),
+		bot.WithEventListenerFunc(ModalHandler),
+		bot.WithEventListenerFunc(MessageHandler),
 		bot.WithGatewayConfigOpts(
-			gateway.WithIntents(gateway.IntentGuilds),
+			gateway.WithIntents(gateway.IntentGuilds, gateway.IntentMessageContent, gateway.IntentGuildMessages),
 			gateway.WithShardCount(util.Config.ShardCount),
 			gateway.WithPresenceOpts(gateway.WithCustomActivity("/mr-poll | Not made with AI!")),
 		),

@@ -17,6 +17,7 @@ func PollOptionButton(interaction *events.ComponentInteractionCreate) error {
 		panic(err)
 		return err
 	}
+	pollData.FetchUser(interaction.Client())
 
 	var selectedOptions []int
 	{
@@ -24,7 +25,7 @@ func PollOptionButton(interaction *events.ComponentInteractionCreate) error {
 		if !util.NumRegex.Match([]byte(s)) {
 			// Migrates Poll
 			pollEmbeds := pollUtil.MakePollEmbeds(pollData)
-			components := pollUtil.MakePollComponents(pollData)
+			components := pollUtil.MakePollComponents(pollData, interaction.Client())
 			err := interaction.UpdateMessage(discord.MessageUpdate{
 				Embeds:     &pollEmbeds,
 				Components: &components,

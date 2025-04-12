@@ -6,6 +6,7 @@ import (
 )
 
 var Module = &util.Module{
+	Name: "suggestion",
 	Commands: map[string]util.ModuleCommand{
 		"suggest": suggestionCommands.SuggestCommand,
 	},

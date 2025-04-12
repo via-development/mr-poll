@@ -40,6 +40,8 @@ func pollCreateCommand(interaction *events.ApplicationCommandInteractionCreate, 
 	cmdData := interaction.SlashCommandInteractionData()
 
 	question := cmdData.String("question")
+	timer := cmdData.String("timer")
+	fmt.Println(timer)
 
 	pollType := database.YesOrNoType
 	switch subcommand {
@@ -104,6 +106,7 @@ func pollCreateCommand(interaction *events.ApplicationCommandInteractionCreate, 
 		id := guild.ID.String()
 		pollData.GuildId = &id
 	}
+	pollData.FetchUser(interaction.Client())
 
 	if pollData.GuildId == nil {
 		_, err := pollUtil.CreatePollDM(interaction, pollData)

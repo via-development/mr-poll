@@ -7,6 +7,7 @@ import (
 )
 
 var Module = &util.Module{
+	Name: "general",
 	Commands: map[string]util.ModuleCommand{
 		"help":    generalCommands.MrPollCommand,
 		"mr-poll": generalCommands.MrPollCommand,
