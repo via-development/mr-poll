@@ -117,6 +117,13 @@ func MessageHandler(e *events.MessageCreate) {
 	args = args[1:]
 
 	switch command {
+	case "shard":
+		{
+			e.Client().Rest().CreateMessage(e.ChannelID, discord.MessageCreate{
+				Content:          fmt.Sprintf("%s Shard (%d)", util.ShardNames[e.ShardID()], e.ShardID()),
+				MessageReference: e.Message.MessageReference,
+			})
+		}
 	case "disable":
 		{
 			if len(args) > 0 {

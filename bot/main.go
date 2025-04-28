@@ -6,8 +6,10 @@ import (
 	"github.com/disgoorg/disgo"
 	"github.com/disgoorg/disgo/bot"
 	"github.com/disgoorg/disgo/cache"
+	"github.com/disgoorg/disgo/events"
 	"github.com/disgoorg/disgo/gateway"
 	"github.com/disgoorg/disgo/httpserver"
+	"github.com/disgoorg/disgo/sharding"
 	"github.com/gofor-little/env"
 	"log"
 	"mrpoll_bot/database"
@@ -46,11 +48,28 @@ func main() {
 		bot.WithEventListenerFunc(ComponentHandler),
 		bot.WithEventListenerFunc(ModalHandler),
 		bot.WithEventListenerFunc(MessageHandler),
-		bot.WithGatewayConfigOpts(
-			gateway.WithIntents(gateway.IntentGuilds, gateway.IntentMessageContent, gateway.IntentGuildMessages),
-			gateway.WithShardCount(util.Config.ShardCount),
-			gateway.WithPresenceOpts(gateway.WithCustomActivity("/mr-poll | Not made with AI!")),
+		bot.WithShardManagerConfigOpts(
+			sharding.WithShardIDs(util.Config.ShardIds...),
+			sharding.WithShardCount(util.Config.ShardCount),
+			sharding.WithAutoScaling(true),
+			sharding.WithGatewayConfigOpts(
+				gateway.WithIntents(gateway.IntentGuilds, gateway.IntentMessageContent, gateway.IntentGuildMessages),
+				gateway.WithCompress(true),
+				gateway.WithPresenceOpts(gateway.WithCustomActivity("/mr-poll | Not made with AI!")),
+			),
 		),
+		bot.WithEventListeners(&events.ListenerAdapter{
+			OnGuildsReady: func(e *events.GuildsReady) {
+				fmt.Printf("Shard %d online!\n", e.ShardID())
+				err = e.Client().SetPresenceForShard(
+					context.Background(), e.ShardID(),
+					gateway.WithCustomActivity(fmt.Sprintf("/mr-poll | %s Shard (%d)", util.ShardNames[e.ShardID()], e.ShardID())),
+				)
+				if err != nil {
+					fmt.Println(err)
+				}
+			},
+		}),
 	)
 	if err != nil {
 		panic(err)
@@ -59,7 +78,7 @@ func main() {
 	database.InitDB()
 
 	fmt.Println("[Disgo]: Connecting...")
-	if err = client.OpenGateway(context.TODO()); err != nil {
+	if err = client.OpenShardManager(context.TODO()); err != nil {
 		panic(err)
 	}
 	if err = client.OpenHTTPServer(); err != nil {

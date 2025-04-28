@@ -8,16 +8,19 @@ import (
 type config struct {
 	EmbedColor int
 	ShardCount int
+	ShardIds   []int
 }
 
 var configs = map[int]config{
 	0: { // Developer Config
 		EmbedColor: 0x40FFAC,
 		ShardCount: 1,
+		ShardIds:   []int{0},
 	},
 	1: { // Production Config
 		EmbedColor: 0x40FFAC,
 		ShardCount: 1,
+		ShardIds:   []int{0, 1, 2},
 	},
 }
 

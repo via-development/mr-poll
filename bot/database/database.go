@@ -1,7 +1,6 @@
 package database
 
 import (
-	"flag"
 	"fmt"
 	"github.com/gofor-little/env"
 	"gorm.io/driver/postgres"
@@ -21,9 +20,7 @@ func InitDB() {
 	}
 
 	databaseDebug := slices.Index(os.Args, "-dd") != -1
-	flag.Parse()
 	migrateFlag := slices.Index(os.Args, "-m") != -1
-	flag.Parse()
 
 	l := logger.Silent
 	if databaseDebug {
