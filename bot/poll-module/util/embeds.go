@@ -30,7 +30,7 @@ func MakePollEmbeds(data database.PollData) []discord.Embed {
 			IconURL: "https://ava.viadev.xyz/" + data.UserId,
 		},
 		Title:       data.Question,
-		URL:         "https://mrpoll.dev/vote",
+		URL:         "https://mrpoll.xyz/vote",
 		Description: optionStr,
 		Color:       util.Config.EmbedColor,
 	}}
@@ -42,7 +42,7 @@ func MakePollEmbeds(data database.PollData) []discord.Embed {
 
 		for i := range len(*data.Images) - 1 {
 			pollEmbeds = append(pollEmbeds, discord.Embed{
-				URL: "https://mrpoll.dev/vote",
+				URL: "https://mrpoll.xyz/vote",
 				Image: &discord.EmbedResource{
 					URL: (*data.Images)[i],
 				},

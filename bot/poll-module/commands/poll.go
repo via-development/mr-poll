@@ -139,7 +139,7 @@ func pollOnlineCommand(interaction *events.ApplicationCommandInteractionCreate) 
 		Components: []discord.ContainerComponent{
 			discord.ActionRowComponent{
 				discord.ButtonComponent{ // Leaked?!?!
-					URL:   "https://mrpoll.dev/polls/" + guildId,
+					URL:   "https://mrpoll.xyz/polls/" + guildId,
 					Style: discord.ButtonStyleLink,
 					Label: "View Polls",
 				},
