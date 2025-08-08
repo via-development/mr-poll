@@ -15,3 +15,5 @@ func DisabledModuleMessage() discord.MessageCreate {
 		Content: "That's unfortunate, this module of features is currently disabled.",
 	}
 }
+
+const EmbedColor = 0x40FFAC

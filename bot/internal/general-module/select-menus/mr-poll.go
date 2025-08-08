@@ -3,10 +3,11 @@ package generalSelectMenus
 import (
 	"github.com/disgoorg/disgo/discord"
 	"github.com/disgoorg/disgo/events"
-	generalUtil "github.com/via-development/mr-poll/bot/general-module/util"
+	"github.com/via-development/mr-poll/bot/internal/database"
+	generalUtil "github.com/via-development/mr-poll/bot/internal/general-module/util"
 )
 
-func MrPollSelectMenu(interaction *events.ComponentInteractionCreate) error {
+func MrPollSelectMenu(interaction *events.ComponentInteractionCreate, db *database.GormDB) error {
 	values := interaction.StringSelectMenuInteractionData().Values
 	var embed discord.Embed
 	switch values[0] {

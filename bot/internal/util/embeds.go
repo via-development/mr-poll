@@ -4,12 +4,10 @@ import (
 	"github.com/disgoorg/disgo/discord"
 )
 
-const embedColor = 0x40FFAC
-
 func MakeSimpleEmbed(text string) discord.Embed {
 	return discord.Embed{
 		Description: text,
-		Color:       embedColor,
+		Color:       EmbedColor,
 	}
 }
 
@@ -19,6 +17,6 @@ func MakeSuccessEmbed(text string) discord.Embed {
 func CommandNotFoundEmbed() discord.Embed {
 	return discord.Embed{
 		Description: "Command not found!",
-		Color:       embedColor,
+		Color:       EmbedColor,
 	}
 }

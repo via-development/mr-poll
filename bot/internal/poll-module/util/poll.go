@@ -167,7 +167,7 @@ func EndPoll(client bot.Client, db *database.GormDB, pollData *schema.PollData, 
 }
 
 func EndTimedPollsLoop(client bot.Client, db *database.GormDB, log *zap.Logger) {
-	log.Info("Poll loop started")
+	log.Info("poll loop started")
 	for {
 		var polls []schema.PollData
 		err := db.

@@ -3,10 +3,11 @@ package suggestionCommands
 import (
 	"github.com/disgoorg/disgo/discord"
 	"github.com/disgoorg/disgo/events"
-	"github.com/via-development/mr-poll/bot/util"
+	"github.com/via-development/mr-poll/bot/internal/database"
+	"github.com/via-development/mr-poll/bot/internal/util"
 )
 
-func SuggestionCommand(interaction *events.ApplicationCommandInteractionCreate) error {
+func SuggestionCommand(interaction *events.ApplicationCommandInteractionCreate, db *database.GormDB) error {
 	subcommand := interaction.SlashCommandInteractionData().SubCommandGroupName
 	if subcommand == nil {
 		subcommand = interaction.SlashCommandInteractionData().SubCommandName

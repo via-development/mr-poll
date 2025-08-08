@@ -21,7 +21,7 @@ func (b *MPBot) isModuleDisabled(module string) bool {
 }
 
 func (b *MPBot) HandleReady(e *events.Ready) {
-	b.log.Info(fmt.Sprintf("Shard %d is online!", e.ShardID()))
+	b.log.Info(fmt.Sprintf("shard %d is online", e.ShardID()))
 	err := e.Client().SetPresenceForShard(
 		context.Background(), e.ShardID(),
 		gateway.WithCustomActivity(

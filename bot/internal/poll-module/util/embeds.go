@@ -4,10 +4,9 @@ import (
 	"fmt"
 	"github.com/disgoorg/disgo/discord"
 	"github.com/via-development/mr-poll/bot/internal/database/schema"
+	"github.com/via-development/mr-poll/bot/internal/util"
 	"sort"
 )
-
-const embedColor = 0x40FFAC
 
 // MakePollEmbeds makes the embeds for a poll with the poll data provided.
 func MakePollEmbeds(pollData *schema.PollData) []discord.Embed {
@@ -26,7 +25,7 @@ func MakePollEmbeds(pollData *schema.PollData) []discord.Embed {
 		Title:       pollData.Question,
 		URL:         "https://mrpoll.dev/vote",
 		Description: optionStr,
-		Color:       embedColor,
+		Color:       util.EmbedColor,
 	}}
 
 	if pollData.Images != nil {
