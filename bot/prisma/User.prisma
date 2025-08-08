@@ -1,7 +1,0 @@
-model User {
-    userId          String  @id
-    username        String
-    displayName     String?
-    permissionLevel Int     @default(0)
-    blacklisted     Boolean @default(false)
-}
