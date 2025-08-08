@@ -24,8 +24,12 @@ func (b *MPBot) HandleReady(e *events.Ready) {
 	b.log.Info(fmt.Sprintf("Shard %d is online!", e.ShardID()))
 	err := e.Client().SetPresenceForShard(
 		context.Background(), e.ShardID(),
-		gateway.WithCustomActivity(fmt.Sprintf("/mr-poll | %s Shard (%d)", util.ShardNames[e.ShardID()], e.ShardID())),
+		gateway.WithCustomActivity(
+			"online",
+			gateway.WithActivityState(fmt.Sprintf("/mr-poll | %s Shard (%d)", util.ShardNames[e.ShardID()], e.ShardID())),
+		),
 	)
+
 	if err != nil {
 		b.log.Error("Could not set presence for shard", zap.Int("shardId", e.ShardID()), zap.Error(err))
 	}

@@ -10,7 +10,6 @@ import (
 	"github.com/disgoorg/disgo/sharding"
 	"github.com/via-development/mr-poll/bot/internal/config"
 	"github.com/via-development/mr-poll/bot/internal/database"
-	"github.com/via-development/mr-poll/bot/internal/util"
 	moduleUtil "github.com/via-development/mr-poll/bot/internal/util/module"
 	"go.uber.org/fx"
 	"go.uber.org/zap"
@@ -65,8 +64,8 @@ func NewMPBot(lc fx.Lifecycle, p MPBotParams) (*MPBot, error) {
 		bot.WithEventListenerFunc(b.HandleModalSubmitInteraction),
 		bot.WithEventListenerFunc(b.HandleMessage),
 		bot.WithShardManagerConfigOpts(
-			sharding.WithShardIDs(util.Config.ShardIds...),
-			sharding.WithShardCount(util.Config.ShardCount),
+			sharding.WithShardIDs(p.Config.ShardIds...),
+			sharding.WithShardCount(p.Config.ShardCount),
 			sharding.WithAutoScaling(true),
 			sharding.WithGatewayConfigOpts(
 				gateway.WithIntents(Intents),
