@@ -6,7 +6,7 @@ import (
 	"github.com/via-development/mr-poll/bot/internal/database/schema"
 )
 
-func MakePollText(pollData *schema.PollData) string {
+func MakePollText(pollData *schema.Poll) string {
 	if pollData.HasEnded {
 		if pollData.EnderUserId == nil {
 			return fmt.Sprintf("⏱️ This poll was ended automatically. (<t:%d:R>)", pollData.EndAt.Unix())

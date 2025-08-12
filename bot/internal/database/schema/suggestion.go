@@ -10,6 +10,6 @@ type Suggestion struct {
 	Title       string
 	Description string
 
-	Upvotes   pq.StringArray
-	Downvotes pq.StringArray
+	Upvotes   pq.StringArray `gorm:"type:text[]"`
+	Downvotes pq.StringArray `gorm:"type:text[]"`
 }

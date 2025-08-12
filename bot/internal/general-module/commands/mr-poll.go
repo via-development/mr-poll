@@ -13,9 +13,7 @@ func MrPollCommand(interaction *events.ApplicationCommandInteractionCreate, db *
 			generalUtil.IntroductoryEmbed(),
 		},
 		Components: []discord.ContainerComponent{
-			discord.ActionRowComponent{
-				generalUtil.HelpSelectMenu(),
-			},
+			generalUtil.HelpComponents(true),
 		},
 	})
 }

@@ -169,6 +169,56 @@ func main() {
 			Contexts:         contexts,
 			IntegrationTypes: intregationTypes,
 		},
+		discord.SlashCommandCreate{
+			Name:        "suggestion",
+			Description: "---",
+			Options: []discord.ApplicationCommandOption{
+				discord.ApplicationCommandOptionSubCommandGroup{
+					Name:        "channel",
+					Description: "---",
+					Options: []discord.ApplicationCommandOptionSubCommand{
+						{
+							Name:        "add",
+							Description: "---",
+							Options: []discord.ApplicationCommandOption{
+								discord.ApplicationCommandOptionString{
+									Name:        "name",
+									Description: "---",
+									Required:    true,
+								},
+								discord.ApplicationCommandOptionChannel{
+									Name:        "channel",
+									Description: "---",
+									Required:    true,
+								},
+							},
+						},
+						{
+							Name:        "remove",
+							Description: "---",
+							Options: []discord.ApplicationCommandOption{
+								discord.ApplicationCommandOptionString{
+									Name:        "name",
+									Description: "---",
+									Required:    true,
+								},
+							},
+						},
+						{
+							Name:        "edit",
+							Description: "---",
+							Options: []discord.ApplicationCommandOption{
+								discord.ApplicationCommandOptionString{
+									Name:        "name",
+									Description: "---",
+									Required:    true,
+								},
+							},
+						},
+					},
+				},
+			},
+		},
 	}
 
 	//_, err = rests.SetGuildCommands(1199127749923709089, 976147096757497937, []discord.ApplicationCommandCreate{})

@@ -16,7 +16,7 @@ var menuButton = discord.ButtonComponent{
 }
 
 // MakePollComponents makes components for a poll with the poll data provided.
-func MakePollComponents(client bot.Client, db *database.GormDB, data *schema.PollData) []discord.ContainerComponent {
+func MakePollComponents(client bot.Client, db *database.GormDB, data *schema.Poll) []discord.ContainerComponent {
 	var components []discord.ContainerComponent
 	switch data.Type {
 	case schema.YesOrNoType, schema.SingleChoiceType:

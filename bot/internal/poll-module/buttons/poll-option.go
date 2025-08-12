@@ -11,7 +11,7 @@ import (
 )
 
 func PollOptionButton(interaction *events.ComponentInteractionCreate, db *database.GormDB) error {
-	var pollData schema.PollData
+	var pollData schema.Poll
 	if err := db.Preload("Options").First(&pollData, interaction.Message.ID.String()).Error; err != nil {
 		return interaction.CreateMessage(pollUtil.PollNotFoundMessage())
 	}

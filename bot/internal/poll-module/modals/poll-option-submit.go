@@ -14,7 +14,7 @@ func PollOptionSubmitModal(interaction *events.ModalSubmitInteractionCreate, db 
 	customId := interaction.Data.CustomID
 	messageId := customId[len("poll:option-submit:"):]
 
-	var pollData schema.PollData
+	var pollData schema.Poll
 	if err := db.Preload("Options").First(&pollData, messageId).Error; err != nil {
 		_ = interaction.CreateMessage(pollUtil.PollNotFoundMessage())
 		return err
@@ -44,7 +44,7 @@ func PollOptionSubmitModal(interaction *events.ModalSubmitInteractionCreate, db 
 
 	optionId := uint(len(pollData.Options))
 	for i := range len(pollData.Options) {
-		if slices.IndexFunc(pollData.Options, func(op schema.PollOptionData) bool {
+		if slices.IndexFunc(pollData.Options, func(op schema.PollOption) bool {
 			return op.OptionId == uint(i)
 		}) == -1 {
 			optionId = uint(i)
@@ -52,7 +52,7 @@ func PollOptionSubmitModal(interaction *events.ModalSubmitInteractionCreate, db 
 		}
 	}
 
-	optionData := schema.PollOptionData{
+	optionData := schema.PollOption{
 		Name:      optionName,
 		OptionId:  optionId,
 		Emoji:     util.Alpha[optionId],

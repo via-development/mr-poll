@@ -1,8 +1,8 @@
 package generalModule
 
 import (
+	generalButtons "github.com/via-development/mr-poll/bot/internal/general-module/buttons"
 	generalCommands "github.com/via-development/mr-poll/bot/internal/general-module/commands"
-	generalSelectMenus "github.com/via-development/mr-poll/bot/internal/general-module/select-menus"
 	moduleUtil "github.com/via-development/mr-poll/bot/internal/util/module"
 )
 
@@ -22,13 +22,13 @@ func (m *GeneralModule) Commands() map[string]moduleUtil.ModuleCommand {
 }
 
 func (m *GeneralModule) Buttons() []*moduleUtil.ModuleComponent {
-	return []*moduleUtil.ModuleComponent{}
+	return []*moduleUtil.ModuleComponent{
+		{"help:", generalButtons.MrPollButton},
+	}
 }
 
 func (m *GeneralModule) SelectMenus() []*moduleUtil.ModuleComponent {
-	return []*moduleUtil.ModuleComponent{
-		{"help:", generalSelectMenus.MrPollSelectMenu},
-	}
+	return []*moduleUtil.ModuleComponent{}
 }
 
 func (m *GeneralModule) Modals() []*moduleUtil.ModuleModal {

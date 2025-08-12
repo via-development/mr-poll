@@ -39,6 +39,12 @@ func PollCommand(interaction *events.ApplicationCommandInteractionCreate, db *da
 }
 
 func pollCreateCommand(interaction *events.ApplicationCommandInteractionCreate, db *database.GormDB, subcommand string) error {
+	// TODO:
+	//err := interaction.DeferCreateMessage(false)
+	//if err != nil {
+	//	return err
+	//}
+
 	cmdData := interaction.SlashCommandInteractionData()
 
 	question := cmdData.String("question")
@@ -55,7 +61,7 @@ func pollCreateCommand(interaction *events.ApplicationCommandInteractionCreate, 
 
 	// TODO: Timed polls
 
-	pollData := schema.PollData{
+	pollData := schema.Poll{
 		Type:         pollType,
 		ChannelId:    interaction.Channel().ID().String(),
 		UserId:       interaction.User().ID.String(),
@@ -71,7 +77,7 @@ func pollCreateCommand(interaction *events.ApplicationCommandInteractionCreate, 
 	}
 
 	if pollType == schema.YesOrNoType {
-		pollData.Options = []schema.PollOptionData{
+		pollData.Options = []schema.PollOption{
 			{
 				OptionId: 0,
 				Name:     "Yes",
@@ -93,7 +99,7 @@ func pollCreateCommand(interaction *events.ApplicationCommandInteractionCreate, 
 			}
 			name := string(opt.Value)
 			name = name[1 : len(name)-1]
-			pollData.Options = append(pollData.Options, schema.PollOptionData{
+			pollData.Options = append(pollData.Options, schema.PollOption{
 				OptionId: uint(i),
 				Name:     name,
 				Voters:   []string{},
@@ -135,7 +141,7 @@ func pollCreateCommand(interaction *events.ApplicationCommandInteractionCreate, 
 	return interaction.CreateMessage(discord.MessageCreate{
 		Flags: discord.MessageFlagEphemeral,
 		Embeds: []discord.Embed{
-			util.MakeSimpleEmbed(fmt.Sprintf("Created [poll](https://discord.com/channels/%s/%s/%s)!", *pollData.GuildId, message.ChannelID, message.ID)),
+			util.MakeSimpleEmbed(fmt.Sprintf("Created [pcoll](https://discord.com/channels/%s/%s/%s)!", *pollData.GuildId, message.ChannelID, message.ID)),
 		},
 	})
 }
@@ -166,7 +172,7 @@ func pollEndCommand(interaction *events.ApplicationCommandInteractionCreate, db 
 
 	messageId := cmdData.String("message")
 
-	var pollData schema.PollData
+	var pollData schema.Poll
 	if err := db.Preload("Options").First(&pollData, messageId).Error; err != nil {
 		return interaction.CreateMessage(pollUtil.PollNotFoundMessage())
 	}

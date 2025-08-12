@@ -16,7 +16,7 @@ import (
 var requiredPermissions = discord.PermissionSendMessages // | discord.PermissionViewChannel
 
 // CreatePoll is used by both the website and poll command for creating polls, it checks permissions, creates poll message and saves to database.
-func CreatePoll(client bot.Client, db *database.GormDB, pollData *schema.PollData) (*discord.Message, error) {
+func CreatePoll(client bot.Client, db *database.GormDB, pollData *schema.Poll) (*discord.Message, error) {
 	channelId := pollData.ChannelIdSnowflake()
 
 	// Channel permission check
@@ -56,7 +56,7 @@ func CreatePoll(client bot.Client, db *database.GormDB, pollData *schema.PollDat
 	return message, nil
 }
 
-func CreatePollDM(interaction *events.ApplicationCommandInteractionCreate, db *database.GormDB, data *schema.PollData) (*discord.Message, error) {
+func CreatePollDM(interaction *events.ApplicationCommandInteractionCreate, db *database.GormDB, data *schema.Poll) (*discord.Message, error) {
 	// Send poll message in DM
 	err := interaction.CreateMessage(discord.MessageCreate{
 		Content:    MakePollText(data),
@@ -82,11 +82,11 @@ func CreatePollDM(interaction *events.ApplicationCommandInteractionCreate, db *d
 	return message, nil
 }
 
-func CreatePollData(db *database.GormDB, pollData *schema.PollData) error {
+func CreatePollData(db *database.GormDB, pollData *schema.Poll) error {
 	return db.Create(pollData).Error
 }
 
-func VotePoll(db *database.GormDB, pollData *schema.PollData, userId string, optionIds []int) (string, error) {
+func VotePoll(db *database.GormDB, pollData *schema.Poll, userId string, optionIds []int) (string, error) {
 	action := ""
 	for i, option := range pollData.Options {
 		index := slices.Index(option.Voters, userId) // Find index of user's id in option's voters array
@@ -131,7 +131,7 @@ func UpdatePoll(interaction events.InteractionCreate) {
 	//interaction.Client().Rest().UpdateInteractionResponse()
 }
 
-func EndPoll(client bot.Client, db *database.GormDB, pollData *schema.PollData, enderId *string) error {
+func EndPoll(client bot.Client, db *database.GormDB, pollData *schema.Poll, enderId *string) error {
 	t := time.Now()
 	pollData.HasEnded = true
 	pollData.EndAt = &t
@@ -169,16 +169,20 @@ func EndPoll(client bot.Client, db *database.GormDB, pollData *schema.PollData, 
 func EndTimedPollsLoop(client bot.Client, db *database.GormDB, log *zap.Logger) {
 	log.Info("poll loop started")
 	for {
-		var polls []schema.PollData
-		err := db.
+		var polls []schema.Poll
+		res := db.
 			Where("has_ended = FALSE AND end_at < NOW() + INTERVAL '1 minute' AND guild_id != null").
 			Order("end_at ASC").
 			Preload("Options").
-			Find(&polls).
-			Error
+			Find(&polls)
 
-		if err != nil {
+		if res.Error != nil {
 			log.Error("could not fetch polls to end")
+			time.Sleep(time.Second * 60)
+			continue
+		}
+
+		if res.RowsAffected == 0 {
 			time.Sleep(time.Second * 60)
 			continue
 		}
@@ -189,7 +193,7 @@ func EndTimedPollsLoop(client bot.Client, db *database.GormDB, log *zap.Logger) 
 				time.Sleep(time.Second * time.Duration(waitSecs))
 			}
 
-			err = EndPoll(client, db, &pollData, nil)
+			err := EndPoll(client, db, &pollData, nil)
 
 			if err != nil {
 				fmt.Println(err)
@@ -202,7 +206,7 @@ func EndTimedPollsLoop(client bot.Client, db *database.GormDB, log *zap.Logger) 
 	}
 }
 
-func FetchPollUser(client bot.Client, db *database.GormDB, pollData *schema.PollData) error {
+func FetchPollUser(client bot.Client, db *database.GormDB, pollData *schema.Poll) error {
 	if pollData.User() != nil {
 		return nil
 	}
@@ -216,7 +220,7 @@ func FetchPollUser(client bot.Client, db *database.GormDB, pollData *schema.Poll
 	return nil
 }
 
-func FetchPollEnder(client bot.Client, db *database.GormDB, pollData *schema.PollData) error {
+func FetchPollEnder(client bot.Client, db *database.GormDB, pollData *schema.Poll) error {
 	if pollData.EnderUserId == nil || pollData.EnderUser() != nil {
 		return nil
 	}

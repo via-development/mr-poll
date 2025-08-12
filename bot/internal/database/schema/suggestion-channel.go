@@ -8,13 +8,14 @@ type SuggestionChannel struct {
 	ApproveChannelId *string
 	DenyChannelId    *string
 
-	createThreads   bool
-	anonymousAuthor bool
-	anonymousVoters bool
-	showCounts      bool
+	CreateThreads   bool
+	AnonymousAuthor bool
+	AnonymousVoters bool
+	ShowCounts      bool
 
 	//upvoteEmoji   String?
 	//downvoteEmoji String?
 	//embedColor    Int?
-	cooldown int
+
+	Cooldown int
 }

@@ -1,4 +1,4 @@
-package generalSelectMenus
+package generalButtons
 
 import (
 	"github.com/disgoorg/disgo/discord"
@@ -7,10 +7,10 @@ import (
 	generalUtil "github.com/via-development/mr-poll/bot/internal/general-module/util"
 )
 
-func MrPollSelectMenu(interaction *events.ComponentInteractionCreate, db *database.GormDB) error {
-	values := interaction.StringSelectMenuInteractionData().Values
+func MrPollButton(interaction *events.ComponentInteractionCreate, db *database.GormDB) error {
+	page := interaction.Data.CustomID()[len("help:"):]
 	var embed discord.Embed
-	switch values[0] {
+	switch page {
 	case "poll":
 		embed = generalUtil.PollHelpPage()
 	case "suggestion":
@@ -21,6 +21,9 @@ func MrPollSelectMenu(interaction *events.ComponentInteractionCreate, db *databa
 	err := interaction.UpdateMessage(discord.MessageUpdate{
 		Embeds: &[]discord.Embed{
 			embed,
+		},
+		Components: &[]discord.ContainerComponent{
+			generalUtil.HelpComponents(page == "back"),
 		},
 	})
 	return err

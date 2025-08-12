@@ -11,7 +11,7 @@ import (
 )
 
 func PollOptionSelectMenu(interaction *events.ComponentInteractionCreate, db *database.GormDB) error {
-	var pollData schema.PollData
+	var pollData schema.Poll
 	if err := db.Preload("Options").First(&pollData, interaction.Message.ID.String()).Error; err != nil {
 		_ = interaction.CreateMessage(pollUtil.PollNotFoundMessage())
 		return err
@@ -29,7 +29,7 @@ func PollOptionSelectMenu(interaction *events.ComponentInteractionCreate, db *da
 	}
 
 	user := interaction.User()
-	db.Save(&schema.UserData{
+	db.Save(&schema.User{
 		UserId:      user.ID.String(),
 		Username:    user.Username,
 		DisplayName: *user.GlobalName,

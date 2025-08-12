@@ -18,7 +18,7 @@ func PollMenuButton(interaction *events.ComponentInteractionCreate, db *database
 	parts := strings.Split(interaction.Data.CustomID()[len("poll:menu-"):], ":")
 	op, pollId := parts[0], parts[1]
 
-	var pollData schema.PollData
+	var pollData schema.Poll
 	res := db.Preload("Options").First(&pollData, pollId)
 	if res.Error != nil {
 		return interaction.CreateMessage(pollUtil.PollNotFoundMessage())
@@ -55,7 +55,7 @@ func PollMenuButton(interaction *events.ComponentInteractionCreate, db *database
 }
 
 func handlePollMenuMainPage(interaction *events.ComponentInteractionCreate, db *database.GormDB) error {
-	var pollData schema.PollData
+	var pollData schema.Poll
 	res := db.Preload("Options").First(&pollData, interaction.Message.ID.String())
 	if res.Error != nil {
 		return interaction.CreateMessage(pollUtil.PollNotFoundMessage())

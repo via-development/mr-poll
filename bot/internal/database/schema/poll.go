@@ -8,27 +8,27 @@ import (
 	"time"
 )
 
-type PollData struct {
+type Poll struct {
 	Type      PollType `gorm:"not null"`
 	MessageId string   `gorm:"primaryKey"`
 	ChannelId string   `gorm:"not null"`
 	GuildId   *string
 
 	UserId string `gorm:"not null"`
-	user   *UserData
+	user   *User
 
-	Question      string           `gorm:"not null"`
-	Options       []PollOptionData `gorm:"foreignKey:MessageId;references:MessageId"`
-	PollRoles     []PollRoleData   `gorm:"foreignKey:MessageId;references:MessageId"`
-	AnonymousMode AnonymousType    `gorm:"not null"`
-	CanSubmit     bool             `gorm:"default:false"`
-	NumOfChoices  uint             `gorm:"not null"`
-	Images        *pq.StringArray  `gorm:"type:text[]"`
+	Question      string          `gorm:"not null"`
+	Options       []PollOption    `gorm:"foreignKey:MessageId;references:MessageId"`
+	PollRoles     []PollRole      `gorm:"foreignKey:MessageId;references:MessageId"`
+	AnonymousMode AnonymousType   `gorm:"not null"`
+	CanSubmit     bool            `gorm:"default:false"`
+	NumOfChoices  uint            `gorm:"not null"`
+	Images        *pq.StringArray `gorm:"type:text[]"`
 
 	HasEnded    bool `gorm:"default:false"`
 	EndAt       *time.Time
 	EnderUserId *string
-	enderUser   *UserData
+	enderUser   *User
 }
 
 type PollType = uint
@@ -49,7 +49,7 @@ const (
 	AnonymousUntilEnd
 )
 
-type PollOptionData struct {
+type PollOption struct {
 	Uid       uint           `gorm:"primaryKey"`
 	OptionId  uint           `gorm:"not null"`
 	MessageId string         `gorm:"not null"`
@@ -59,7 +59,7 @@ type PollOptionData struct {
 	SubmitBy  *string
 }
 
-type PollRoleData struct {
+type PollRole struct {
 	Uid        uint `gorm:"primaryKey"`
 	MessageId  string
 	RoleId     string
@@ -67,15 +67,15 @@ type PollRoleData struct {
 	Required   bool
 }
 
-func (p *PollData) MessageIdSnowflake() snowflake.ID {
+func (p *Poll) MessageIdSnowflake() snowflake.ID {
 	return snowflake.MustParse(p.MessageId)
 }
 
-func (p *PollData) ChannelIdSnowflake() snowflake.ID {
+func (p *Poll) ChannelIdSnowflake() snowflake.ID {
 	return snowflake.MustParse(p.ChannelId)
 }
 
-func (p *PollData) GuildIdSnowflake() *snowflake.ID {
+func (p *Poll) GuildIdSnowflake() *snowflake.ID {
 	if p.GuildId == nil {
 		return nil
 	}
@@ -83,28 +83,28 @@ func (p *PollData) GuildIdSnowflake() *snowflake.ID {
 	return &s
 }
 
-func (p *PollData) UserIdSnowflake() *snowflake.ID {
+func (p *Poll) UserIdSnowflake() *snowflake.ID {
 	s := snowflake.MustParse(p.UserId)
 	return &s
 }
 
-func (p *PollData) SetUser(user UserData) {
+func (p *Poll) SetUser(user User) {
 	p.user = &user
 }
 
-func (p *PollData) User() *UserData {
+func (p *Poll) User() *User {
 	return p.user
 }
 
-func (p *PollData) SetEnderUser(user UserData) {
+func (p *Poll) SetEnderUser(user User) {
 	p.enderUser = &user
 }
 
-func (p *PollData) EnderUser() *UserData {
+func (p *Poll) EnderUser() *User {
 	return p.enderUser
 }
 
-func (o *PollOptionData) parseEmoji() (string, bool) {
+func (o *PollOption) parseEmoji() (string, bool) {
 	emoji := o.Emoji
 	if emoji[0] == '#' {
 		switch emoji[1:] {
@@ -120,7 +120,7 @@ func (o *PollOptionData) parseEmoji() (string, bool) {
 	return emoji, isUnicode
 }
 
-func (o *PollOptionData) ApiEmoji() discord.ComponentEmoji {
+func (o *PollOption) ApiEmoji() discord.ComponentEmoji {
 	emoji, isUnicode := o.parseEmoji()
 
 	if isUnicode {
@@ -134,7 +134,7 @@ func (o *PollOptionData) ApiEmoji() discord.ComponentEmoji {
 	}
 }
 
-func (o *PollOptionData) ChatEmoji() string {
+func (o *PollOption) ChatEmoji() string {
 	emoji, isUnicode := o.parseEmoji()
 
 	if isUnicode {

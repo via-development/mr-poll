@@ -9,7 +9,7 @@ import (
 )
 
 // MakePollEmbeds makes the embeds for a poll with the poll data provided.
-func MakePollEmbeds(pollData *schema.PollData) []discord.Embed {
+func MakePollEmbeds(pollData *schema.Poll) []discord.Embed {
 	optionStr := ""
 	sort.Slice(pollData.Options, func(i, j int) bool {
 		return pollData.Options[i].OptionId < pollData.Options[j].OptionId

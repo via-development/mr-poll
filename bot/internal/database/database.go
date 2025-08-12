@@ -64,17 +64,19 @@ func (db *GormDB) BotSettings() schema.BotSettings {
 
 func (db *GormDB) RunMigrations() error {
 	return db.AutoMigrate(
-		&schema.PollData{},
-		&schema.PollOptionData{},
-		&schema.PollRoleData{},
+		&schema.Poll{},
+		&schema.PollOption{},
+		&schema.PollRole{},
 		&schema.BotSettings{},
-		&schema.UserData{},
-		&schema.UserStatsData{},
+		&schema.User{},
+		&schema.UserStats{},
+		&schema.Suggestion{},
+		&schema.SuggestionChannel{},
 	)
 }
 
-func (db *GormDB) FetchUser(client bot.Client, userId string) (*schema.UserData, error) {
-	var userData *schema.UserData
+func (db *GormDB) FetchUser(client bot.Client, userId string) (*schema.User, error) {
+	var userData *schema.User
 	res := db.First(&userData, userId)
 
 	if res.Error != nil {
@@ -87,11 +89,11 @@ func (db *GormDB) FetchUser(client bot.Client, userId string) (*schema.UserData,
 			return nil, err
 		}
 
-		userData = &schema.UserData{
+		userData = &schema.User{
 			UserId:      userId,
 			Username:    user.Username,
 			DisplayName: *user.GlobalName,
-			Stats: schema.UserStatsData{
+			Stats: schema.UserStats{
 				PollCount:       0,
 				SuggestionCount: 0,
 			},
