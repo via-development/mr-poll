@@ -3,11 +3,11 @@ package main
 import (
 	"context"
 	"github.com/via-development/mr-poll/bot/internal"
+	"github.com/via-development/mr-poll/bot/internal/api"
 	"github.com/via-development/mr-poll/bot/internal/config"
 	"github.com/via-development/mr-poll/bot/internal/database"
 	generalModule "github.com/via-development/mr-poll/bot/internal/general-module"
 	pollModule "github.com/via-development/mr-poll/bot/internal/poll-module"
-	pollUtil "github.com/via-development/mr-poll/bot/internal/poll-module/util"
 	suggestionModule "github.com/via-development/mr-poll/bot/internal/suggestion-module"
 	moduleUtil "github.com/via-development/mr-poll/bot/internal/util/module"
 	"go.uber.org/fx"
@@ -25,14 +25,15 @@ func main() {
 			config.New,
 			database.New,
 			internal.NewMPBot,
+			api.New,
 			fx.Annotate(pollModule.New, fx.As(new(moduleUtil.Module)), fx.ResultTags(`group:"botModules"`)),
 			fx.Annotate(suggestionModule.New, fx.As(new(moduleUtil.Module)), fx.ResultTags(`group:"botModules"`)),
 			fx.Annotate(generalModule.New, fx.As(new(moduleUtil.Module)), fx.ResultTags(`group:"botModules"`)),
 		),
-		fx.Invoke(func(lc fx.Lifecycle, config *config.Config, client *internal.MPBot, db *database.GormDB, log *zap.Logger) error {
+		fx.Invoke(func(lc fx.Lifecycle, config *config.Config, client *internal.MPBot, db *database.GormDB, log *zap.Logger, api *api.Api, pm *pollModule.PollModule) error {
 			lc.Append(fx.Hook{
 				OnStart: func(ctx context.Context) error {
-					go pollUtil.EndTimedPollsLoop(client, db, log)
+					go pm.EndTimedPollsLoop()
 					return nil
 				},
 			})

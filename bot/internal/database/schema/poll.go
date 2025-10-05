@@ -1,10 +1,12 @@
 package schema
 
 import (
+	"fmt"
 	"github.com/disgoorg/disgo/discord"
 	"github.com/disgoorg/snowflake/v2"
 	"github.com/lib/pq"
 	"github.com/via-development/mr-poll/bot/internal/util"
+	"strconv"
 	"time"
 )
 
@@ -17,12 +19,12 @@ type Poll struct {
 	UserId string `gorm:"not null"`
 	user   *User
 
-	Question      string          `gorm:"not null"`
-	Options       []PollOption    `gorm:"foreignKey:MessageId;references:MessageId"`
-	PollRoles     []PollRole      `gorm:"foreignKey:MessageId;references:MessageId"`
-	AnonymousMode AnonymousType   `gorm:"not null"`
-	CanSubmit     bool            `gorm:"default:false"`
-	NumOfChoices  uint            `gorm:"not null"`
+	Question      string        `gorm:"not null"`
+	Options       []PollOption  `gorm:"foreignKey:MessageId;references:MessageId"`
+	PollRoles     []PollRole    `gorm:"foreignKey:MessageId;references:MessageId"`
+	AnonymousMode AnonymousType `gorm:"not null"`
+	CanSubmit     bool          `gorm:"default:false"`
+	NumOfChoices  *uint
 	Images        *pq.StringArray `gorm:"type:text[]"`
 
 	HasEnded    bool `gorm:"default:false"`
@@ -104,14 +106,22 @@ func (p *Poll) EnderUser() *User {
 	return p.enderUser
 }
 
+func (p *Poll) MessageUrl() string {
+	gId := "@me"
+	if p.GuildId != nil {
+		gId = *p.GuildId
+	}
+	return fmt.Sprintf("https://discord.com/channels/%s/%s/%s", gId, p.ChannelId, p.MessageId)
+}
+
 func (o *PollOption) parseEmoji() (string, bool) {
 	emoji := o.Emoji
 	if emoji[0] == '#' {
 		switch emoji[1:] {
 		case "check":
-			emoji = "1268234822304792676"
+			emoji = strconv.Itoa(util.CheckEmoji)
 		case "cross":
-			emoji = "1268234748988493905"
+			emoji = strconv.Itoa(util.CrossEmoji)
 		default:
 			panic(emoji + " is not an emoji")
 		}

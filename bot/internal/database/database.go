@@ -1,6 +1,7 @@
 package database
 
 import (
+	"errors"
 	"github.com/disgoorg/disgo/bot"
 	"github.com/disgoorg/snowflake/v2"
 	"github.com/via-development/mr-poll/bot/internal/config"
@@ -77,13 +78,9 @@ func (db *GormDB) RunMigrations() error {
 
 func (db *GormDB) FetchUser(client bot.Client, userId string) (*schema.User, error) {
 	var userData *schema.User
-	res := db.First(&userData, userId)
+	err := db.Find(&userData, userId).Error
 
-	if res.Error != nil {
-		return nil, res.Error
-	}
-
-	if res.RowsAffected == 0 {
+	if err != nil && errors.Is(err, gorm.ErrRecordNotFound) || userData.Username == "" {
 		user, err := client.Rest().GetUser(snowflake.MustParse(userId))
 		if err != nil {
 			return nil, err
@@ -92,12 +89,14 @@ func (db *GormDB) FetchUser(client bot.Client, userId string) (*schema.User, err
 		userData = &schema.User{
 			UserId:      userId,
 			Username:    user.Username,
-			DisplayName: *user.GlobalName,
-			Stats: schema.UserStats{
-				PollCount:       0,
-				SuggestionCount: 0,
-			},
+			DisplayName: user.GlobalName,
 		}
+		err = db.Create(&userData).Error
+		if err != nil {
+			db.log.Error("could not save user data", zap.Error(err))
+		}
+	} else if err != nil {
+		return nil, err
 	}
 
 	return userData, nil

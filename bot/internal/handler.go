@@ -7,6 +7,7 @@ import (
 	"github.com/disgoorg/disgo/events"
 	"github.com/disgoorg/disgo/gateway"
 	"github.com/via-development/mr-poll/bot/internal/util"
+	moduleUtil "github.com/via-development/mr-poll/bot/internal/util/module"
 	"go.uber.org/zap"
 	"strings"
 )
@@ -36,17 +37,26 @@ func (b *MPBot) HandleReady(e *events.Ready) {
 }
 
 func (b *MPBot) HandleCommandInteraction(e *events.ApplicationCommandInteractionCreate) {
-	commandName := e.SlashCommandInteractionData().CommandName()
 
 	for _, module := range b.modules {
-		command, ok := module.Commands()[commandName]
+		var command moduleUtil.ModuleCommand
+		var ok bool
+		if e.Data.Type() == discord.ApplicationCommandTypeSlash {
+			commandName := e.SlashCommandInteractionData().CommandName()
+			command, ok = module.Commands()[commandName]
+		} else {
+			commandName := e.MessageCommandInteractionData().CommandName()
+			command, ok = module.MenuCommands()[commandName]
+			fmt.Println(commandName, command)
+		}
+
 		if ok {
 			if b.isModuleDisabled(module.Name()) {
 				_ = e.CreateMessage(util.DisabledModuleMessage())
 				return
 			}
 
-			err := command(e, b.db)
+			err := command(e)
 			if err != nil {
 				b.log.Error("Failed to execute command!", zap.String("name", e.Data.CommandName()), zap.Error(err))
 				return
@@ -86,7 +96,7 @@ func (b *MPBot) HandleButtonInteraction(e *events.ComponentInteractionCreate) {
 					return
 				}
 
-				err := button.Execute(e, b.db)
+				err := button.Execute(e)
 				if err != nil {
 					b.log.Error("Failed to execute button!", zap.String("customId", e.Data.CustomID()), zap.Error(err))
 					return
@@ -109,7 +119,7 @@ func (b *MPBot) HandleSelectMenuInteraction(e *events.ComponentInteractionCreate
 					return
 				}
 
-				err := selectMenu.Execute(e, b.db)
+				err := selectMenu.Execute(e)
 				if err != nil {
 					b.log.Error("Failed to execute select menu!", zap.String("customId", e.Data.CustomID()), zap.Error(err))
 					return
@@ -121,7 +131,26 @@ func (b *MPBot) HandleSelectMenuInteraction(e *events.ComponentInteractionCreate
 	}
 }
 func (b *MPBot) HandleModalSubmitInteraction(e *events.ModalSubmitInteractionCreate) {
+	customId := e.Data.CustomID
 
+	for _, module := range b.modules {
+		for _, modal := range module.Modals() {
+			if strings.HasPrefix(customId, modal.Prefix) {
+				if b.isModuleDisabled(module.Name()) {
+					_ = e.CreateMessage(util.DisabledModuleMessage())
+					return
+				}
+
+				err := modal.Execute(e)
+				if err != nil {
+					b.log.Error("Failed to execute modal!", zap.String("customId", e.Data.CustomID), zap.Error(err))
+					return
+				}
+
+				return
+			}
+		}
+	}
 }
 
 func (b *MPBot) HandleMessage(e *events.ModalSubmitInteractionCreate) {

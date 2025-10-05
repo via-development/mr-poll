@@ -53,7 +53,7 @@ func NewMPBot(lc fx.Lifecycle, p MPBotParams) (*MPBot, error) {
 	b.Client, err = disgo.New(p.Config.BotToken,
 		bot.WithHTTPServerConfigOpts(p.Config.BotPublicKey,
 			httpserver.WithURL("/bot"),
-			httpserver.WithAddress(":4002"),
+			httpserver.WithAddress(":3001"),
 		),
 		bot.WithCacheConfigOpts(
 			cache.WithCaches(cache.FlagGuilds, cache.FlagChannels, cache.FlagMembers, cache.FlagRoles),
@@ -102,7 +102,7 @@ func (b *MPBot) Start(ctx context.Context) error {
 }
 
 func (b *MPBot) Stop(ctx context.Context) error {
-	b.log.Info("Bot is stopping")
+	b.log.Info("bot is stopping")
 	b.Close(ctx)
 	return nil
 }

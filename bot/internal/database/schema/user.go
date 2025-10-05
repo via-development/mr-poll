@@ -1,16 +1,19 @@
 package schema
 
+import "github.com/golittie/timeless/pkg/dateformat"
+
 type User struct {
 	UserId          string `gorm:"primaryKey"`
 	Username        string
-	DisplayName     string
+	DisplayName     *string
 	PermissionLevel int
-
-	Stats UserStats `gorm:"foreignKey:UserId;references:UserId"`
+	UTCOffset       *float32
+	DateFormat      *dateformat.DateFormat
 }
 
-type UserStats struct {
-	UserId          string `gorm:"primaryKey"`
-	PollCount       int
-	SuggestionCount int
+func (u *User) SafeName() string {
+	if u.DisplayName != nil {
+		return *u.DisplayName
+	}
+	return "@" + u.Username
 }

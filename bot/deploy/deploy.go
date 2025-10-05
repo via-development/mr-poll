@@ -49,6 +49,43 @@ func main() {
 			IntegrationTypes: intregationTypes,
 		},
 		discord.SlashCommandCreate{
+			Name:             "mytime",
+			Description:      "Set your timezone and dateformat.",
+			Contexts:         contexts,
+			IntegrationTypes: intregationTypes,
+			Options: []discord.ApplicationCommandOption{
+				discord.ApplicationCommandOptionFloat{
+					Name:        "utc-offset",
+					Description: "-",
+					Required:    true,
+				},
+				//discord.ApplicationCommandOptionFloat{
+				//	Name:        "your-time",
+				//	Description: "What time is it for you right now?",
+				//	Required:    true,
+				//},
+				discord.ApplicationCommandOptionString{
+					Name:        "date-format",
+					Description: "---",
+					Required:    true,
+					Choices: []discord.ApplicationCommandOptionChoiceString{
+						{
+							Name:  "DDMMYY",
+							Value: "ddmmyy",
+						},
+						{
+							Name:  "MMDDYY",
+							Value: "mmddyy",
+						},
+						{
+							Name:  "YYMMDD",
+							Value: "yymmdd",
+						},
+					},
+				},
+			},
+		},
+		discord.SlashCommandCreate{
 			Name:        "poll",
 			Description: "---",
 			Options: []discord.ApplicationCommandOption{
@@ -178,6 +215,17 @@ func main() {
 					Description: "---",
 					Options: []discord.ApplicationCommandOptionSubCommand{
 						{
+							Name:        "info",
+							Description: "---",
+							Options: []discord.ApplicationCommandOption{
+								discord.ApplicationCommandOptionString{
+									Name:        "name",
+									Description: "---",
+									Required:    true,
+								},
+							},
+						},
+						{
 							Name:        "add",
 							Description: "---",
 							Options: []discord.ApplicationCommandOption{
@@ -190,6 +238,11 @@ func main() {
 									Name:        "channel",
 									Description: "---",
 									Required:    true,
+								},
+								discord.ApplicationCommandOptionString{
+									Name:        "cooldown",
+									Description: "---",
+									Required:    false,
 								},
 							},
 						},
@@ -218,6 +271,26 @@ func main() {
 					},
 				},
 			},
+		},
+		discord.MessageCommandCreate{
+			Name:             "End poll",
+			Contexts:         contexts,
+			IntegrationTypes: intregationTypes,
+		},
+		discord.MessageCommandCreate{
+			Name:             "Refresh poll",
+			Contexts:         contexts,
+			IntegrationTypes: intregationTypes,
+		},
+		discord.MessageCommandCreate{
+			Name:             "Approve suggestion",
+			Contexts:         contexts,
+			IntegrationTypes: intregationTypes,
+		},
+		discord.MessageCommandCreate{
+			Name:             "Deny suggestion",
+			Contexts:         contexts,
+			IntegrationTypes: intregationTypes,
 		},
 	}
 

@@ -4,7 +4,7 @@
 - ChannelId
 - MessageId
 - UserId
-- Type: Yes-or-no(0)/Single-choice(1)/Multiple-choice(2)/Submit-option(3)
+- Type: Yes-or-no(0)/Single-choice(1)/Multiple-choice(2)
 - Question
 - Options
   - Name

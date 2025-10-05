@@ -2,7 +2,6 @@ package moduleUtil
 
 import (
 	"github.com/disgoorg/disgo/events"
-	"github.com/via-development/mr-poll/bot/internal/database"
 )
 
 type Module interface {
@@ -11,16 +10,19 @@ type Module interface {
 	SelectMenus() []*ModuleComponent
 	Buttons() []*ModuleComponent
 	Modals() []*ModuleModal
+	MenuCommands() map[string]ModuleCommand
 }
 
-type ModuleCommand func(*events.ApplicationCommandInteractionCreate, *database.GormDB) error
+type ModuleCommand func(*events.ApplicationCommandInteractionCreate) error
 
 type ModuleComponent struct {
 	Prefix  string
-	Execute func(*events.ComponentInteractionCreate, *database.GormDB) error
+	Execute func(*events.ComponentInteractionCreate) error
 }
 
 type ModuleModal struct {
 	Prefix  string
-	Execute func(*events.ModalSubmitInteractionCreate, *database.GormDB) error
+	Execute func(*events.ModalSubmitInteractionCreate) error
 }
+
+type ModuleApp func(*events.ApplicationCommandInteractionCreate) error

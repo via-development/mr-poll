@@ -1,15 +1,18 @@
-package pollModule
+package poll_module
 
 import (
-	pollButtons "github.com/via-development/mr-poll/bot/internal/poll-module/buttons"
-	pollCommands "github.com/via-development/mr-poll/bot/internal/poll-module/commands"
-	pollModals "github.com/via-development/mr-poll/bot/internal/poll-module/modals"
-	pollSelectMenus "github.com/via-development/mr-poll/bot/internal/poll-module/select-menus"
+	"github.com/disgoorg/disgo/bot"
+	"github.com/via-development/mr-poll/bot/internal/database"
 	moduleUtil "github.com/via-development/mr-poll/bot/internal/util/module"
+	"go.uber.org/zap"
 )
 
 type PollModule struct {
 	moduleUtil.Module
+
+	db     *database.GormDB
+	client bot.Client
+	log    *zap.Logger
 }
 
 func (m *PollModule) Name() string {
@@ -18,46 +21,40 @@ func (m *PollModule) Name() string {
 
 func (m *PollModule) Commands() map[string]moduleUtil.ModuleCommand {
 	return map[string]moduleUtil.ModuleCommand{
-		"poll": pollCommands.PollCommand,
+		"poll": m.PollCommand,
 	}
 }
 
 func (m *PollModule) Buttons() []*moduleUtil.ModuleComponent {
 	return []*moduleUtil.ModuleComponent{
-		{"poll:option-", pollButtons.PollOptionButton},
-		{"poll:menu", pollButtons.PollMenuButton},
+		{"poll:option-", m.PollOptionButton},
+		{"poll:menu", m.PollMenuButton},
 	}
 }
 
 func (m *PollModule) SelectMenus() []*moduleUtil.ModuleComponent {
 	return []*moduleUtil.ModuleComponent{
-		{"poll:opts-", pollSelectMenus.PollOptionSelectMenu},
+		{"poll:opts", m.PollOptionSelectMenu},
 	}
 }
 
 func (m *PollModule) Modals() []*moduleUtil.ModuleModal {
 	return []*moduleUtil.ModuleModal{
-		{"poll:option-submit", pollModals.PollOptionSubmitModal},
+		{"poll:option-submit", m.PollOptionSubmitModal},
 	}
 }
 
-//var Module = &util.Module{
-//	Name: "poll",
-//	Commands: map[string]util.ModuleCommand{
-//		"poll": pollCommands.PollCommand,
-//	},
-//	Buttons: []*util.ModuleComponent{
-//		{"poll:option-", pollButtons.PollOptionButton},
-//		{"poll:menu", pollButtons.PollMenuButton},
-//	},
-//	SelectMenus: []*util.ModuleComponent{
-//		{"poll:opts", pollSelectMenus.PollOptionSelectMenu},
-//	},
-//	Modals: []*util.ModuleModal{
-//		{"poll:option-submit", pollModals.PollOptionSubmitModal},
-//	},
-//}
+func (m *PollModule) MenuCommands() map[string]moduleUtil.ModuleCommand {
+	return map[string]moduleUtil.ModuleCommand{
+		"End poll":     m.MenuPollEndCommand,
+		"Refresh poll": m.MenuPollRefreshCommand,
+	}
+}
 
-func New() *PollModule {
-	return &PollModule{}
+func New(db *database.GormDB, client bot.Client, log *zap.Logger) *PollModule {
+	return &PollModule{
+		db:     db,
+		client: client,
+		log:    log,
+	}
 }

@@ -1,7 +1,10 @@
 package util
 
 import (
+	"fmt"
+	"github.com/disgoorg/disgo/bot"
 	"github.com/disgoorg/disgo/discord"
+	"github.com/disgoorg/snowflake/v2"
 	"regexp"
 )
 
@@ -17,3 +20,35 @@ func DisabledModuleMessage() discord.MessageCreate {
 }
 
 const EmbedColor = 0x40FFAC
+const RedColor = 0xFF0000
+const GreenColor = 0x00FF00
+
+func PrepareChannel(client bot.Client, guildId snowflake.ID, channelId snowflake.ID, permissions discord.Permissions) (discord.GuildChannel, UtilError) {
+	channel, found := client.Caches().Channel(channelId)
+	if !found {
+		return nil, NewNaturalErrorS("channel is not in cache")
+	}
+	member, found := client.Caches().Member(guildId, client.ApplicationID())
+	if !found {
+		m, err := client.Rest().GetMember(guildId, client.ApplicationID())
+		if err != nil {
+			return nil, NewFaultError(err)
+		}
+		member = *m
+	}
+	p := client.Caches().MemberPermissionsInChannel(channel, member)
+	if p.Missing(permissions) {
+		return nil, NewNaturalErrorS("I am missing permissions in the channel")
+	}
+	return channel, nil
+}
+
+func EmojiString(emojiId int) string {
+	return fmt.Sprintf("<:e:%d>", emojiId)
+}
+
+var messageRegex = regexp.MustCompile("^(https://(ptb\\.|canary\\.|)discord\\.com/channels/[0-9]{17,20}/[0-9]{17,20}/|)([0-9]{17,20})$")
+
+func ParseMessageRef(message string) string {
+	return messageRegex.FindAllStringSubmatch(message, -1)[0][1]
+}

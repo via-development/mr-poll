@@ -17,6 +17,8 @@ type Config struct {
 	DSN         string
 	AutoMigrate bool
 
+	SentryDSN string
+
 	ShardIds   []int
 	ShardCount int
 
@@ -46,6 +48,8 @@ func New() (*Config, error) {
 	if config.DSN = os.Getenv("DSN"); config.DSN == "" {
 		return nil, keyMissingError("DSN")
 	}
+
+	config.SentryDSN = os.Getenv("SENTRY_DSN")
 
 	sc := os.Getenv("SHARD_COUNT")
 	if sc != "" {

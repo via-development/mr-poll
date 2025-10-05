@@ -1,26 +1,24 @@
-package pollModals
+package poll_module
 
 import (
 	"github.com/disgoorg/disgo/discord"
 	"github.com/disgoorg/disgo/events"
-	"github.com/via-development/mr-poll/bot/internal/database"
 	"github.com/via-development/mr-poll/bot/internal/database/schema"
-	pollUtil "github.com/via-development/mr-poll/bot/internal/poll-module/util"
 	"github.com/via-development/mr-poll/bot/internal/util"
 	"slices"
 )
 
-func PollOptionSubmitModal(interaction *events.ModalSubmitInteractionCreate, db *database.GormDB) error {
+func (m *PollModule) PollOptionSubmitModal(interaction *events.ModalSubmitInteractionCreate) error {
 	customId := interaction.Data.CustomID
 	messageId := customId[len("poll:option-submit:"):]
 
 	var pollData schema.Poll
-	if err := db.Preload("Options").First(&pollData, messageId).Error; err != nil {
-		_ = interaction.CreateMessage(pollUtil.PollNotFoundMessage())
+	if err := m.db.Preload("Options").First(&pollData, messageId).Error; err != nil {
+		_ = interaction.CreateMessage(PollNotFoundMessage())
 		return err
 	}
 
-	err := pollUtil.FetchPollUser(interaction.Client(), db, &pollData)
+	err := m.FetchPollUser(&pollData)
 	if err != nil {
 		return err
 	}
@@ -31,12 +29,12 @@ func PollOptionSubmitModal(interaction *events.ModalSubmitInteractionCreate, db 
 	for i, option := range pollData.Options {
 		if j := slices.Index(option.Voters, userId); j != -1 {
 			if len(option.Voters) <= 1 {
-				db.Delete(&option)
+				m.db.Delete(&option)
 				pollData.Options = append(pollData.Options[:i], pollData.Options[i+1:]...)
 			} else {
 				option.Voters = append(option.Voters[:j], option.Voters[j+1:]...)
 
-				db.Save(&option)
+				m.db.Save(&option)
 				pollData.Options[i] = option
 			}
 		}
@@ -60,11 +58,11 @@ func PollOptionSubmitModal(interaction *events.ModalSubmitInteractionCreate, db 
 		MessageId: messageId,
 		SubmitBy:  &userId,
 	}
-	db.Save(&optionData)
+	m.db.Save(&optionData)
 	pollData.Options = append(pollData.Options, optionData)
 
-	pollEmbeds := pollUtil.MakePollEmbeds(&pollData)
-	pollComponents := pollUtil.MakePollComponents(interaction.Client(), db, &pollData)
+	pollEmbeds := m.MakePollEmbeds(&pollData)
+	pollComponents := m.MakePollComponents(&pollData)
 	return interaction.UpdateMessage(discord.MessageUpdate{
 		Embeds:     &pollEmbeds,
 		Components: &pollComponents,
