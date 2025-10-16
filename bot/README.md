@@ -37,7 +37,7 @@ docker compose -f docker-compose.dev.yml up
 Now that you have a database running, you can start the bot:
 ```shell
 go build
-./bot
+AUTO_MIGRATE=1 ./bot
 ```
 This bot uses a http server to retrieve interaction requests from Discord, you will need to portforward so Discord can send you requests.
 The easiest way to do this is to just use [ngrok](https://ngrok.com), with the command:

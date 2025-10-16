@@ -2,6 +2,7 @@ package suggestionModule
 
 import (
 	"fmt"
+
 	"github.com/disgoorg/disgo/discord"
 	"github.com/disgoorg/snowflake/v2"
 	"github.com/via-development/mr-poll/bot/internal/database/schema"
@@ -24,7 +25,7 @@ func (m *SuggestionModule) CreateSugggestion(suggestion *schema.Suggestion, sugg
 
 	message, err := m.client.Rest().CreateMessage(channel.ID(), discord.MessageCreate{
 		Embeds: []discord.Embed{
-			MakeSuggestionEmbed(suggestion, suggestionChannel),
+			m.MakeSuggestionEmbed(suggestion, suggestionChannel),
 		},
 		Components: MakeSuggestionComponents(suggestion),
 	})
@@ -170,7 +171,7 @@ func (m *SuggestionModule) SendSuggestionChannelPanel(suggestionChannel *schema.
 
 // EMBEDS
 
-func MakeSuggestionEmbed(suggestion *schema.Suggestion, suggestionChannel *schema.SuggestionChannel) discord.Embed {
+func (m *SuggestionModule) MakeSuggestionEmbed(suggestion *schema.Suggestion, suggestionChannel *schema.SuggestionChannel) discord.Embed {
 	suggestionEmbed := discord.Embed{
 		Description: suggestion.Description,
 	}
@@ -183,7 +184,7 @@ func MakeSuggestionEmbed(suggestion *schema.Suggestion, suggestionChannel *schem
 
 	if suggestion.Title != nil {
 		suggestionEmbed.Title = *suggestion.Title
-		suggestionEmbed.URL = util.BotVoteURL
+		suggestionEmbed.URL = util.BotVotePage(m.config.WebsiteURL)
 	}
 
 	user := suggestion.User()
@@ -231,8 +232,8 @@ func MakeSuggestionEmbed(suggestion *schema.Suggestion, suggestionChannel *schem
 	return suggestionEmbed
 }
 
-func MakeProcessedSuggestionEmbed(suggestion *schema.Suggestion, suggestionChannel *schema.SuggestionChannel, approved bool) discord.Embed {
-	suggestionEmbed := MakeSuggestionEmbed(suggestion, suggestionChannel)
+func (m *SuggestionModule) MakeProcessedSuggestionEmbed(suggestion *schema.Suggestion, suggestionChannel *schema.SuggestionChannel, approved bool) discord.Embed {
+	suggestionEmbed := m.MakeSuggestionEmbed(suggestion, suggestionChannel)
 
 	state := "[Approved]"
 	if !approved {

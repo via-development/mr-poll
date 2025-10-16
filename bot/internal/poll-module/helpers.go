@@ -281,7 +281,7 @@ func (m *PollModule) MakePollEmbeds(pollData *schema.Poll) []discord.Embed {
 
 		for i := range len(*pollData.Images) - 1 {
 			pollEmbeds = append(pollEmbeds, discord.Embed{
-				URL: util.BotVoteURL,
+				URL: util.BotVotePage(m.config.WebsiteURL),
 				Image: &discord.EmbedResource{
 					URL: (*pollData.Images)[i],
 				},

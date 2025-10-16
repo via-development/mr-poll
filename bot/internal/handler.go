@@ -3,13 +3,13 @@ package internal
 import (
 	"context"
 	"fmt"
+	"strings"
+
 	"github.com/disgoorg/disgo/discord"
 	"github.com/disgoorg/disgo/events"
 	"github.com/disgoorg/disgo/gateway"
 	"github.com/via-development/mr-poll/bot/internal/util"
-	moduleUtil "github.com/via-development/mr-poll/bot/internal/util/module"
 	"go.uber.org/zap"
-	"strings"
 )
 
 func (b *MPBot) isModuleDisabled(module string) bool {
@@ -39,7 +39,7 @@ func (b *MPBot) HandleReady(e *events.Ready) {
 func (b *MPBot) HandleCommandInteraction(e *events.ApplicationCommandInteractionCreate) {
 
 	for _, module := range b.modules {
-		var command moduleUtil.ModuleCommand
+		var command ModuleCommand
 		var ok bool
 		if e.Data.Type() == discord.ApplicationCommandTypeSlash {
 			commandName := e.SlashCommandInteractionData().CommandName()

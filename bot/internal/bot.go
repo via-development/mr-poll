@@ -2,6 +2,7 @@ package internal
 
 import (
 	"context"
+
 	"github.com/disgoorg/disgo"
 	"github.com/disgoorg/disgo/bot"
 	"github.com/disgoorg/disgo/cache"
@@ -28,16 +29,17 @@ type MPBot struct {
 	config  *config.Config
 	log     *zap.Logger
 	db      *database.GormDB
-	Modules map[string]Module
+	modules map[string]Module
 
 	bot.Client
 }
 
 func NewMPBot(lc fx.Lifecycle, p MPBotParams) (*MPBot, error) {
 	b := &MPBot{
-		config: p.Config,
-		log:    p.Log,
-		db:     p.Db,
+		config:  p.Config,
+		log:     p.Log,
+		db:      p.Db,
+		modules: map[string]Module{},
 	}
 
 	var err error
@@ -79,7 +81,7 @@ func NewMPBot(lc fx.Lifecycle, p MPBotParams) (*MPBot, error) {
 }
 
 func (b *MPBot) Register(m Module) {
-	b.Modules[m.Name()] = m
+	b.modules[m.Name()] = m
 }
 
 func (b *MPBot) Start(ctx context.Context) error {

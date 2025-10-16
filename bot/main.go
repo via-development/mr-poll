@@ -2,11 +2,14 @@ package main
 
 import (
 	"context"
+
 	"github.com/via-development/mr-poll/bot/internal"
 	"github.com/via-development/mr-poll/bot/internal/api"
 	"github.com/via-development/mr-poll/bot/internal/config"
 	"github.com/via-development/mr-poll/bot/internal/database"
+	generalModule "github.com/via-development/mr-poll/bot/internal/general-module"
 	pollModule "github.com/via-development/mr-poll/bot/internal/poll-module"
+	suggestionModule "github.com/via-development/mr-poll/bot/internal/suggestion-module"
 	"go.uber.org/fx"
 	"go.uber.org/fx/fxevent"
 	"go.uber.org/zap"
@@ -24,8 +27,8 @@ func main() {
 			internal.NewMPBot,
 			api.New,
 			fx.Annotate(pollModule.New, fx.As(new(internal.Module)), fx.ResultTags(`group:"botModules"`)),
-			//fx.Annotate(suggestionModule.New, fx.As(new(moduleUtil.Module)), fx.ResultTags(`group:"botModules"`)),
-			//fx.Annotate(generalModule.New, fx.As(new(moduleUtil.Module)), fx.ResultTags(`group:"botModules"`)),
+			fx.Annotate(suggestionModule.New, fx.As(new(internal.Module)), fx.ResultTags(`group:"botModules"`)),
+			fx.Annotate(generalModule.New, fx.As(new(internal.Module)), fx.ResultTags(`group:"botModules"`)),
 		),
 		fx.Invoke(func(lc fx.Lifecycle, p struct {
 			fx.In

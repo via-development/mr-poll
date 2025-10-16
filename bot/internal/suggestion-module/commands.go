@@ -2,6 +2,11 @@ package suggestionModule
 
 import (
 	"errors"
+	"regexp"
+	"slices"
+	"strconv"
+	"strings"
+
 	"github.com/disgoorg/disgo/discord"
 	"github.com/disgoorg/disgo/events"
 	"github.com/disgoorg/snowflake/v2"
@@ -10,10 +15,6 @@ import (
 	"github.com/via-development/mr-poll/bot/internal/database/schema"
 	"github.com/via-development/mr-poll/bot/internal/util"
 	"gorm.io/gorm"
-	"regexp"
-	"slices"
-	"strconv"
-	"strings"
 )
 
 func (m *SuggestionModule) SuggestCommand(interaction *events.ApplicationCommandInteractionCreate) error {
@@ -296,7 +297,7 @@ func (m *SuggestionModule) ApproveDenyCommand(interaction *events.ApplicationCom
 
 	_, err = m.client.Rest().UpdateMessage(suggestion.ChannelIdSnowflake(), snowflake.MustParse(targetMessageId), discord.MessageUpdate{
 		Embeds: &[]discord.Embed{
-			MakeProcessedSuggestionEmbed(&suggestion, &suggestionChannel, approved),
+			m.MakeProcessedSuggestionEmbed(&suggestion, &suggestionChannel, approved),
 		},
 		Components: &[]discord.ContainerComponent{},
 	})

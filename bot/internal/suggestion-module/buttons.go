@@ -2,6 +2,7 @@ package suggestionModule
 
 import (
 	"fmt"
+
 	"github.com/disgoorg/disgo/discord"
 	"github.com/disgoorg/disgo/events"
 	"github.com/via-development/mr-poll/bot/internal/database/schema"
@@ -39,7 +40,7 @@ func (m *SuggestionModule) SuggestionsVoteButton(interaction *events.ComponentIn
 
 		err = interaction.UpdateMessage(discord.MessageUpdate{
 			Embeds: &[]discord.Embed{
-				MakeSuggestionEmbed(&suggestion, &suggestionChannel),
+				m.MakeSuggestionEmbed(&suggestion, &suggestionChannel),
 			},
 		})
 

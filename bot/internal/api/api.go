@@ -4,6 +4,8 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"net/http"
+
 	"github.com/disgoorg/disgo/bot"
 	"github.com/golittie/timeless/pkg/dateformat"
 	"github.com/labstack/echo/v4"
@@ -11,13 +13,12 @@ import (
 	"github.com/via-development/mr-poll/bot/internal/database"
 	"go.uber.org/fx"
 	"go.uber.org/zap"
-	"net/http"
 )
 
 type Api struct {
 	echo *echo.Echo
 
-	dummyTimezoneCache map[string]string // uuid -> user id
+	DummyTimezoneCache map[string]string // uuid -> user id
 
 	client bot.Client
 	log    *zap.Logger
@@ -43,7 +44,7 @@ func (a *Api) Stop(ctx context.Context) error {
 
 func (a *Api) PostTimezone(c echo.Context) error {
 	id := c.Param("id")
-	userId, ok := a.dummyTimezoneCache[id]
+	userId, ok := a.DummyTimezoneCache[id]
 	if !ok {
 		return echo.NewHTTPError(http.StatusNotFound)
 	}
@@ -67,6 +68,8 @@ func New(lc fx.Lifecycle, mpb *internal.MPBot, log *zap.Logger, db *database.Gor
 		client: mpb.Client,
 		log:    log,
 		echo:   e,
+
+		DummyTimezoneCache: map[string]string{},
 	}
 	e.HideBanner = true
 	e.GET("/polls", a.GetPolls)

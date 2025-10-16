@@ -2,6 +2,7 @@ package suggestionModule
 
 import (
 	"github.com/via-development/mr-poll/bot/internal"
+	"github.com/via-development/mr-poll/bot/internal/config"
 	"github.com/via-development/mr-poll/bot/internal/database"
 )
 
@@ -10,6 +11,7 @@ type SuggestionModule struct {
 
 	db     *database.GormDB
 	client *internal.MPBot
+	config *config.Config
 }
 
 func (m *SuggestionModule) Name() string {
@@ -43,9 +45,10 @@ func (m *SuggestionModule) MenuCommands() map[string]internal.ModuleCommand {
 	return map[string]internal.ModuleCommand{}
 }
 
-func New(db *database.GormDB, client *internal.MPBot) *SuggestionModule {
+func New(db *database.GormDB, client *internal.MPBot, config *config.Config) *SuggestionModule {
 	return &SuggestionModule{
 		db:     db,
 		client: client,
+		config: config,
 	}
 }

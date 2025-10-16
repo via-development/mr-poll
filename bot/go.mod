@@ -2,8 +2,6 @@ module github.com/via-development/mr-poll/bot
 
 go 1.24.5
 
-replace github.com/golittie/timeless => ../../timeless
-
 require (
 	github.com/disgoorg/disgo v0.18.16
 	github.com/disgoorg/snowflake/v2 v2.0.3
@@ -12,6 +10,7 @@ require (
 	github.com/golittie/timeless v0.2.1
 	github.com/joho/godotenv v1.5.1
 	github.com/labstack/echo/v4 v4.13.4
+	github.com/labstack/gommon v0.4.2
 	github.com/lib/pq v1.10.9
 	github.com/pkg/errors v0.9.1
 	go.uber.org/fx v1.24.0
@@ -22,6 +21,7 @@ require (
 
 require (
 	github.com/disgoorg/json v1.2.0 // indirect
+	github.com/google/uuid v1.6.0 // indirect
 	github.com/gorilla/websocket v1.5.3 // indirect
 	github.com/jackc/pgpassfile v1.0.0 // indirect
 	github.com/jackc/pgservicefile v0.0.0-20221227161230-091c0ba34f0a // indirect
@@ -29,7 +29,6 @@ require (
 	github.com/jackc/puddle/v2 v2.2.1 // indirect
 	github.com/jinzhu/inflection v1.0.0 // indirect
 	github.com/jinzhu/now v1.1.5 // indirect
-	github.com/labstack/gommon v0.4.2 // indirect
 	github.com/mattn/go-colorable v0.1.14 // indirect
 	github.com/mattn/go-isatty v0.0.20 // indirect
 	github.com/sasha-s/go-csync v0.0.0-20240107134140-fcbab37b09ad // indirect

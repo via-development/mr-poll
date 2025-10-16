@@ -3,10 +3,11 @@ package config
 import (
 	"errors"
 	"fmt"
-	"github.com/joho/godotenv"
 	"os"
 	"strconv"
 	"strings"
+
+	"github.com/joho/godotenv"
 )
 
 type Config struct {
@@ -23,6 +24,8 @@ type Config struct {
 	ShardCount int
 
 	EmbedColor int
+
+	WebsiteURL string
 }
 
 func New() (*Config, error) {
@@ -85,7 +88,17 @@ func New() (*Config, error) {
 		config.EmbedColor = 0x40FFAC
 	}
 
-	config.AutoMigrate = false
+	u := os.Getenv("WEBSITE_URL")
+	if u != "" {
+		config.WebsiteURL = u
+	} else {
+		return nil, keyMissingError("WEBSITE_URL")
+	}
+
+	am := os.Getenv("AUTO_MIGRATE")
+	if am == "t" || am == "true" || am == "1" {
+		config.AutoMigrate = true
+	}
 
 	return config, nil
 }

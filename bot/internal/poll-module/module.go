@@ -2,6 +2,7 @@ package poll_module
 
 import (
 	"github.com/via-development/mr-poll/bot/internal"
+	"github.com/via-development/mr-poll/bot/internal/config"
 	"github.com/via-development/mr-poll/bot/internal/database"
 	"go.uber.org/zap"
 )
@@ -12,6 +13,7 @@ type PollModule struct {
 	db     *database.GormDB
 	client *internal.MPBot
 	log    *zap.Logger
+	config *config.Config
 }
 
 func (m *PollModule) Name() string {
@@ -50,10 +52,11 @@ func (m *PollModule) MenuCommands() map[string]internal.ModuleCommand {
 	}
 }
 
-func New(db *database.GormDB, client *internal.MPBot, log *zap.Logger) *PollModule {
+func New(db *database.GormDB, client *internal.MPBot, log *zap.Logger, config *config.Config) *PollModule {
 	return &PollModule{
 		db:     db,
 		client: client,
 		log:    log,
+		config: config,
 	}
 }
