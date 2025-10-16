@@ -46,7 +46,7 @@ func NewMPBot(lc fx.Lifecycle, p MPBotParams) (*MPBot, error) {
 	b.Client, err = disgo.New(p.Config.BotToken,
 		bot.WithHTTPServerConfigOpts(p.Config.BotPublicKey,
 			httpserver.WithURL("/bot"),
-			httpserver.WithAddress(":3001"),
+			httpserver.WithAddress(":3003"),
 		),
 		bot.WithCacheConfigOpts(
 			cache.WithCaches(cache.FlagGuilds, cache.FlagChannels, cache.FlagMembers, cache.FlagRoles),
