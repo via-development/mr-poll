@@ -6,10 +6,7 @@ import (
 	"github.com/via-development/mr-poll/bot/internal/api"
 	"github.com/via-development/mr-poll/bot/internal/config"
 	"github.com/via-development/mr-poll/bot/internal/database"
-	generalModule "github.com/via-development/mr-poll/bot/internal/general-module"
 	pollModule "github.com/via-development/mr-poll/bot/internal/poll-module"
-	suggestionModule "github.com/via-development/mr-poll/bot/internal/suggestion-module"
-	moduleUtil "github.com/via-development/mr-poll/bot/internal/util/module"
 	"go.uber.org/fx"
 	"go.uber.org/fx/fxevent"
 	"go.uber.org/zap"
@@ -26,20 +23,37 @@ func main() {
 			database.New,
 			internal.NewMPBot,
 			api.New,
-			fx.Annotate(pollModule.New, fx.As(new(moduleUtil.Module)), fx.ResultTags(`group:"botModules"`)),
-			fx.Annotate(suggestionModule.New, fx.As(new(moduleUtil.Module)), fx.ResultTags(`group:"botModules"`)),
-			fx.Annotate(generalModule.New, fx.As(new(moduleUtil.Module)), fx.ResultTags(`group:"botModules"`)),
+			fx.Annotate(pollModule.New, fx.As(new(internal.Module)), fx.ResultTags(`group:"botModules"`)),
+			//fx.Annotate(suggestionModule.New, fx.As(new(moduleUtil.Module)), fx.ResultTags(`group:"botModules"`)),
+			//fx.Annotate(generalModule.New, fx.As(new(moduleUtil.Module)), fx.ResultTags(`group:"botModules"`)),
 		),
-		fx.Invoke(func(lc fx.Lifecycle, config *config.Config, client *internal.MPBot, db *database.GormDB, log *zap.Logger, api *api.Api, pm *pollModule.PollModule) error {
+		fx.Invoke(func(lc fx.Lifecycle, p struct {
+			fx.In
+
+			Config  *config.Config
+			Client  *internal.MPBot
+			Db      *database.GormDB
+			Log     *zap.Logger
+			Api     *api.Api
+			Modules []internal.Module `group:"botModules"`
+		}) error {
+			for _, module := range p.Modules {
+				p.Client.Register(module)
+			}
 			lc.Append(fx.Hook{
 				OnStart: func(ctx context.Context) error {
-					go pm.EndTimedPollsLoop()
+					//for _, mod := range modules {
+					//	if (*mod).Name() == "polls" {
+					//		pm := mod.(*pollModule.PollModule)
+					//	}
+					//}
+					//go pm.EndTimedPollsLoop()
 					return nil
 				},
 			})
 
-			if config.AutoMigrate {
-				return db.RunMigrations()
+			if p.Config.AutoMigrate {
+				return p.Db.RunMigrations()
 			}
 			return nil
 		}),

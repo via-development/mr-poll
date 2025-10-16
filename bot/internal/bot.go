@@ -10,7 +10,6 @@ import (
 	"github.com/disgoorg/disgo/sharding"
 	"github.com/via-development/mr-poll/bot/internal/config"
 	"github.com/via-development/mr-poll/bot/internal/database"
-	moduleUtil "github.com/via-development/mr-poll/bot/internal/util/module"
 	"go.uber.org/fx"
 	"go.uber.org/zap"
 )
@@ -20,33 +19,25 @@ const Intents = gateway.IntentGuilds | gateway.IntentMessageContent | gateway.In
 type MPBotParams struct {
 	fx.In
 
-	Config  *config.Config
-	Log     *zap.Logger
-	Db      *database.GormDB
-	Modules []moduleUtil.Module `group:"botModules"`
+	Config *config.Config
+	Log    *zap.Logger
+	Db     *database.GormDB
 }
 
 type MPBot struct {
 	config  *config.Config
 	log     *zap.Logger
 	db      *database.GormDB
-	modules map[string]moduleUtil.Module
+	Modules map[string]Module
 
 	bot.Client
 }
 
 func NewMPBot(lc fx.Lifecycle, p MPBotParams) (*MPBot, error) {
-	mods := map[string]moduleUtil.Module{}
-	for _, m := range p.Modules {
-		mods[m.Name()] = m
-		p.Log.Info(m.Name() + " module loaded")
-	}
-
 	b := &MPBot{
-		config:  p.Config,
-		log:     p.Log,
-		db:      p.Db,
-		modules: mods,
+		config: p.Config,
+		log:    p.Log,
+		db:     p.Db,
 	}
 
 	var err error
@@ -85,6 +76,10 @@ func NewMPBot(lc fx.Lifecycle, p MPBotParams) (*MPBot, error) {
 	})
 
 	return b, nil
+}
+
+func (b *MPBot) Register(m Module) {
+	b.Modules[m.Name()] = m
 }
 
 func (b *MPBot) Start(ctx context.Context) error {

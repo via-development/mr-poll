@@ -1,50 +1,49 @@
 package suggestionModule
 
 import (
-	"github.com/disgoorg/disgo/bot"
+	"github.com/via-development/mr-poll/bot/internal"
 	"github.com/via-development/mr-poll/bot/internal/database"
-	moduleUtil "github.com/via-development/mr-poll/bot/internal/util/module"
 )
 
 type SuggestionModule struct {
-	moduleUtil.Module
+	internal.Module
 
 	db     *database.GormDB
-	client bot.Client
+	client *internal.MPBot
 }
 
 func (m *SuggestionModule) Name() string {
 	return "suggestion"
 }
 
-func (m *SuggestionModule) Commands() map[string]moduleUtil.ModuleCommand {
-	return map[string]moduleUtil.ModuleCommand{
+func (m *SuggestionModule) Commands() map[string]internal.ModuleCommand {
+	return map[string]internal.ModuleCommand{
 		"suggest":    m.SuggestCommand,
 		"suggestion": m.SuggestionCommand,
 	}
 }
 
-func (m *SuggestionModule) Buttons() []*moduleUtil.ModuleComponent {
-	return []*moduleUtil.ModuleComponent{
+func (m *SuggestionModule) Buttons() []*internal.ModuleComponent {
+	return []*internal.ModuleComponent{
 		{"suggestions:", m.SuggestionsVoteButton},
 	}
 }
 
-func (m *SuggestionModule) SelectMenus() []*moduleUtil.ModuleComponent {
-	return []*moduleUtil.ModuleComponent{}
+func (m *SuggestionModule) SelectMenus() []*internal.ModuleComponent {
+	return []*internal.ModuleComponent{}
 }
 
-func (m *SuggestionModule) Modals() []*moduleUtil.ModuleModal {
-	return []*moduleUtil.ModuleModal{
+func (m *SuggestionModule) Modals() []*internal.ModuleModal {
+	return []*internal.ModuleModal{
 		{"suggest:submit:", m.SuggestionSubmitModal},
 	}
 }
 
-func (m *SuggestionModule) MenuCommands() map[string]moduleUtil.ModuleCommand {
-	return map[string]moduleUtil.ModuleCommand{}
+func (m *SuggestionModule) MenuCommands() map[string]internal.ModuleCommand {
+	return map[string]internal.ModuleCommand{}
 }
 
-func New(db *database.GormDB, client bot.Client) *SuggestionModule {
+func New(db *database.GormDB, client *internal.MPBot) *SuggestionModule {
 	return &SuggestionModule{
 		db:     db,
 		client: client,
