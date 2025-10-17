@@ -5,11 +5,13 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+	"strconv"
 
 	"github.com/disgoorg/disgo/bot"
 	"github.com/golittie/timeless/pkg/dateformat"
 	"github.com/labstack/echo/v4"
 	"github.com/via-development/mr-poll/bot/internal"
+	"github.com/via-development/mr-poll/bot/internal/config"
 	"github.com/via-development/mr-poll/bot/internal/database"
 	"go.uber.org/fx"
 	"go.uber.org/zap"
@@ -23,12 +25,13 @@ type Api struct {
 	client bot.Client
 	log    *zap.Logger
 	db     *database.GormDB
+	config *config.Config
 }
 
 func (a *Api) Start(ctx context.Context) error {
 	go func() {
 		a.log.Error("api started")
-		err := a.echo.Start(":3002")
+		err := a.echo.Start(":" + strconv.Itoa(a.config.ApiPort))
 		if err != nil && !errors.Is(err, http.ErrServerClosed) {
 			a.log.Error("failed to start api", zap.Error(err))
 			return
@@ -62,12 +65,13 @@ func (a *Api) PostTimezone(c echo.Context) error {
 	return nil
 }
 
-func New(lc fx.Lifecycle, mpb *internal.MPBot, log *zap.Logger, db *database.GormDB) *Api {
+func New(lc fx.Lifecycle, mpb *internal.MPBot, log *zap.Logger, db *database.GormDB, config *config.Config) *Api {
 	e := echo.New()
 	a := &Api{
 		client: mpb.Client,
 		log:    log,
 		echo:   e,
+		config: config,
 
 		DummyTimezoneCache: map[string]string{},
 	}

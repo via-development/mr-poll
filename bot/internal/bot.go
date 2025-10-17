@@ -2,6 +2,7 @@ package internal
 
 import (
 	"context"
+	"strconv"
 
 	"github.com/disgoorg/disgo"
 	"github.com/disgoorg/disgo/bot"
@@ -46,7 +47,7 @@ func NewMPBot(lc fx.Lifecycle, p MPBotParams) (*MPBot, error) {
 	b.Client, err = disgo.New(p.Config.BotToken,
 		bot.WithHTTPServerConfigOpts(p.Config.BotPublicKey,
 			httpserver.WithURL("/bot"),
-			httpserver.WithAddress(":3003"),
+			httpserver.WithAddress(":"+strconv.Itoa(b.config.BotPort)),
 		),
 		bot.WithCacheConfigOpts(
 			cache.WithCaches(cache.FlagGuilds, cache.FlagChannels, cache.FlagMembers, cache.FlagRoles),
