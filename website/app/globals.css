@@ -1,26 +1,28 @@
+@font-face {
+  font-family: "Gotham";
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+  src: url("/fonts/GothamBook.woff2") format("woff2");
+}
+
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
+/*Here is where the custom colour/gotham font is, use the figma to identify the colour
+or just learn how to read hex*/
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
+@theme {
+  --color-primary: #300f95;
+  --color-secondary: #8861ff;
+  --color-background: #1c0f43;
+  --color-brand: #40ffac;
+  --color-accent: #e58510;
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --font-gotham: "Gotham", sans-serif;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background-color: var(--color-background);
+  color: white;
+  font-family: "Gotham";
 }
