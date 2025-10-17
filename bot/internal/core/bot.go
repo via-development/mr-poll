@@ -1,7 +1,8 @@
-package internal
+package core
 
 import (
 	"context"
+	"strconv"
 
 	"github.com/disgoorg/disgo"
 	"github.com/disgoorg/disgo/bot"
@@ -17,25 +18,25 @@ import (
 
 const Intents = gateway.IntentGuilds | gateway.IntentMessageContent | gateway.IntentGuildMessages
 
-type MPBotParams struct {
-	fx.In
-
-	Config *config.Config
-	Log    *zap.Logger
-	Db     *database.GormDB
-}
-
-type MPBot struct {
+type Client struct {
 	config  *config.Config
 	log     *zap.Logger
-	db      *database.GormDB
+	db      *database.Database
 	modules map[string]Module
 
 	bot.Client
 }
 
-func NewMPBot(lc fx.Lifecycle, p MPBotParams) (*MPBot, error) {
-	b := &MPBot{
+type clientParams struct {
+	fx.In
+
+	Config *config.Config
+	Log    *zap.Logger
+	Db     *database.Database
+}
+
+func New(lc fx.Lifecycle, p clientParams) (*Client, error) {
+	b := &Client{
 		config:  p.Config,
 		log:     p.Log,
 		db:      p.Db,
@@ -46,7 +47,7 @@ func NewMPBot(lc fx.Lifecycle, p MPBotParams) (*MPBot, error) {
 	b.Client, err = disgo.New(p.Config.BotToken,
 		bot.WithHTTPServerConfigOpts(p.Config.BotPublicKey,
 			httpserver.WithURL("/bot"),
-			httpserver.WithAddress(":3001"),
+			httpserver.WithAddress(":"+strconv.Itoa(b.config.BotPort)),
 		),
 		bot.WithCacheConfigOpts(
 			cache.WithCaches(cache.FlagGuilds, cache.FlagChannels, cache.FlagMembers, cache.FlagRoles),
@@ -80,11 +81,11 @@ func NewMPBot(lc fx.Lifecycle, p MPBotParams) (*MPBot, error) {
 	return b, nil
 }
 
-func (b *MPBot) Register(m Module) {
+func (b *Client) Register(m Module) {
 	b.modules[m.Name()] = m
 }
 
-func (b *MPBot) Start(ctx context.Context) error {
+func (b *Client) Start(ctx context.Context) error {
 	b.log.Info("starting sharding manager")
 	if err := b.OpenShardManager(ctx); err != nil {
 		return err
@@ -98,7 +99,7 @@ func (b *MPBot) Start(ctx context.Context) error {
 	return nil
 }
 
-func (b *MPBot) Stop(ctx context.Context) error {
+func (b *Client) Stop(ctx context.Context) error {
 	b.log.Info("bot is stopping")
 	b.Close(ctx)
 	return nil

@@ -5,12 +5,14 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+	"strconv"
 
-	"github.com/disgoorg/disgo/bot"
 	"github.com/golittie/timeless/pkg/dateformat"
 	"github.com/labstack/echo/v4"
-	"github.com/via-development/mr-poll/bot/internal"
+	"github.com/via-development/mr-poll/bot/internal/config"
+	"github.com/via-development/mr-poll/bot/internal/core"
 	"github.com/via-development/mr-poll/bot/internal/database"
+	"github.com/via-development/mr-poll/bot/internal/redis"
 	"go.uber.org/fx"
 	"go.uber.org/zap"
 )
@@ -20,15 +22,17 @@ type Api struct {
 
 	DummyTimezoneCache map[string]string // uuid -> user id
 
-	client bot.Client
+	client *core.Client
 	log    *zap.Logger
-	db     *database.GormDB
+	db     *database.Database
+	config *config.Config
+	redis  *redis.Client
 }
 
 func (a *Api) Start(ctx context.Context) error {
 	go func() {
 		a.log.Error("api started")
-		err := a.echo.Start(":3002")
+		err := a.echo.Start(":" + strconv.Itoa(a.config.ApiPort))
 		if err != nil && !errors.Is(err, http.ErrServerClosed) {
 			a.log.Error("failed to start api", zap.Error(err))
 			return
@@ -44,8 +48,8 @@ func (a *Api) Stop(ctx context.Context) error {
 
 func (a *Api) PostTimezone(c echo.Context) error {
 	id := c.Param("id")
-	userId, ok := a.DummyTimezoneCache[id]
-	if !ok {
+	userId := a.redis.Get(context.Background(), redis.TimezoneKey(id))
+	if userId == nil {
 		return echo.NewHTTPError(http.StatusNotFound)
 	}
 
@@ -62,12 +66,13 @@ func (a *Api) PostTimezone(c echo.Context) error {
 	return nil
 }
 
-func New(lc fx.Lifecycle, mpb *internal.MPBot, log *zap.Logger, db *database.GormDB) *Api {
+func New(lc fx.Lifecycle, client *core.Client, log *zap.Logger, db *database.Database, config *config.Config, redis *redis.Client) *Api {
 	e := echo.New()
 	a := &Api{
-		client: mpb.Client,
+		client: client,
 		log:    log,
 		echo:   e,
+		config: config,
 
 		DummyTimezoneCache: map[string]string{},
 	}

@@ -18,6 +18,13 @@ type Config struct {
 	DSN         string
 	AutoMigrate bool
 
+	RedisAddress  string
+	RedisPassword string
+	RedisDB       int
+
+	BotPort int
+	ApiPort int
+
 	SentryDSN string
 
 	ShardIds   []int
@@ -52,10 +59,26 @@ func New() (*Config, error) {
 		return nil, keyMissingError("DSN")
 	}
 
+	if config.RedisAddress = os.Getenv("REDIS_ADDRESS"); config.RedisAddress == "" {
+		return nil, keyMissingError("REDIS_ADDRESS")
+	}
+
+	if config.RedisPassword = os.Getenv("REDIS_PASSWORD"); config.RedisPassword == "" {
+		return nil, keyMissingError("REDIS_PASSWORD")
+	}
+
+	if db := os.Getenv("REDIS_DB"); db != "" {
+		config.RedisDB, err = strconv.Atoi(db)
+		if err != nil {
+			return nil, err
+		}
+	} else {
+		config.RedisDB = 0
+	}
+
 	config.SentryDSN = os.Getenv("SENTRY_DSN")
 
-	sc := os.Getenv("SHARD_COUNT")
-	if sc != "" {
+	if sc := os.Getenv("SHARD_COUNT"); sc != "" {
 		config.ShardCount, err = strconv.Atoi(sc)
 		if err != nil {
 			return nil, err
@@ -64,8 +87,7 @@ func New() (*Config, error) {
 		config.ShardCount = 1
 	}
 
-	si := os.Getenv("SHARD_IDS")
-	if si != "" {
+	if si := os.Getenv("SHARD_IDS"); si != "" {
 		for _, i := range strings.Split(si, ",") {
 			id, err := strconv.Atoi(i)
 			if err != nil {
@@ -77,8 +99,7 @@ func New() (*Config, error) {
 		config.ShardIds = []int{0}
 	}
 
-	c := os.Getenv("EMBED_COLOR")
-	if sc != "" {
+	if c := os.Getenv("EMBED_COLOR"); c != "" {
 		e, err := strconv.ParseInt(c, 16, 16)
 		if err != nil {
 			return nil, err
@@ -86,6 +107,24 @@ func New() (*Config, error) {
 		config.EmbedColor = int(e)
 	} else {
 		config.EmbedColor = 0x40FFAC
+	}
+
+	if p := os.Getenv("BOT_PORT"); p != "" {
+		config.BotPort, err = strconv.Atoi(p)
+		if err != nil {
+			return nil, err
+		}
+	} else {
+		config.BotPort = 4001
+	}
+
+	if p := os.Getenv("API_PORT"); p != "" {
+		config.ApiPort, err = strconv.Atoi(p)
+		if err != nil {
+			return nil, err
+		}
+	} else {
+		config.ApiPort = 4002
 	}
 
 	u := os.Getenv("WEBSITE_URL")

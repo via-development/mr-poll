@@ -265,7 +265,7 @@ func (m *SuggestionModule) suggestionChannelConfigCommand(interaction *events.Ap
 	return nil
 }
 
-func (m *SuggestionModule) ApproveDenyCommand(interaction *events.ApplicationCommandInteractionCreate, db *database.GormDB) error {
+func (m *SuggestionModule) ApproveDenyCommand(interaction *events.ApplicationCommandInteractionCreate, db *database.Database) error {
 	// TODO: perms check
 	targetMessageId := interaction.SlashCommandInteractionData().String("message")
 

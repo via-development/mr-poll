@@ -1,11 +1,14 @@
 package generalModule
 
 import (
+	"context"
 	"fmt"
+	"time"
 
 	"github.com/disgoorg/disgo/discord"
 	"github.com/disgoorg/disgo/events"
 	"github.com/google/uuid"
+	"github.com/via-development/mr-poll/bot/internal/redis"
 )
 
 func (m *GeneralModule) MrPollCommand(interaction *events.ApplicationCommandInteractionCreate) error {
@@ -21,7 +24,7 @@ func (m *GeneralModule) MrPollCommand(interaction *events.ApplicationCommandInte
 
 func (m *GeneralModule) MyTimeCommand(interaction *events.ApplicationCommandInteractionCreate) error {
 	id, _ := uuid.NewRandom()
-	m.api.DummyTimezoneCache[id.String()] = interaction.User().ID.String()
+	m.redis.Set(context.Background(), redis.TimezoneKey(id.String()), interaction.User().ID.String(), time.Minute*5)
 	return interaction.CreateMessage(discord.MessageCreate{
 		Content: fmt.Sprintf("Go to %s/tz/%s to set your timezone", m.config.WebsiteURL, id),
 		Flags:   discord.MessageFlagEphemeral,
