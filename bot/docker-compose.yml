@@ -19,4 +19,5 @@ services:
       - API_PORT="3004"
       - WEBSITE_URL="https://mrpoll.xyz"
       - REDIS_URL="redis://redis:6379"
+      - REDIS_PASSWORD=""
     restart: unless-stopped

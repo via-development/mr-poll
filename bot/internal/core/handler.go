@@ -1,4 +1,4 @@
-package internal
+package core
 
 import (
 	"context"
@@ -12,7 +12,7 @@ import (
 	"go.uber.org/zap"
 )
 
-func (b *MPBot) isModuleDisabled(module string) bool {
+func (b *Client) isModuleDisabled(module string) bool {
 	for _, m := range b.db.BotSettings().DisabledModules {
 		if m == module {
 			return true
@@ -21,7 +21,7 @@ func (b *MPBot) isModuleDisabled(module string) bool {
 	return false
 }
 
-func (b *MPBot) HandleReady(e *events.Ready) {
+func (b *Client) HandleReady(e *events.Ready) {
 	b.log.Info(fmt.Sprintf("shard %d is online", e.ShardID()))
 	err := e.Client().SetPresenceForShard(
 		context.Background(), e.ShardID(),
@@ -36,7 +36,7 @@ func (b *MPBot) HandleReady(e *events.Ready) {
 	}
 }
 
-func (b *MPBot) HandleCommandInteraction(e *events.ApplicationCommandInteractionCreate) {
+func (b *Client) HandleCommandInteraction(e *events.ApplicationCommandInteractionCreate) {
 
 	for _, module := range b.modules {
 		var command ModuleCommand
@@ -72,7 +72,7 @@ func (b *MPBot) HandleCommandInteraction(e *events.ApplicationCommandInteraction
 	})
 }
 
-func (b *MPBot) HandleComponentInteraction(e *events.ComponentInteractionCreate) {
+func (b *Client) HandleComponentInteraction(e *events.ComponentInteractionCreate) {
 	switch e.Data.Type() {
 	case discord.ComponentTypeStringSelectMenu, discord.ComponentTypeUserSelectMenu, discord.ComponentTypeRoleSelectMenu, discord.ComponentTypeChannelSelectMenu:
 		b.HandleSelectMenuInteraction(e)
@@ -85,7 +85,7 @@ func (b *MPBot) HandleComponentInteraction(e *events.ComponentInteractionCreate)
 	}
 }
 
-func (b *MPBot) HandleButtonInteraction(e *events.ComponentInteractionCreate) {
+func (b *Client) HandleButtonInteraction(e *events.ComponentInteractionCreate) {
 	customId := e.Data.CustomID()
 
 	for _, module := range b.modules {
@@ -108,7 +108,7 @@ func (b *MPBot) HandleButtonInteraction(e *events.ComponentInteractionCreate) {
 	}
 }
 
-func (b *MPBot) HandleSelectMenuInteraction(e *events.ComponentInteractionCreate) {
+func (b *Client) HandleSelectMenuInteraction(e *events.ComponentInteractionCreate) {
 	customId := e.Data.CustomID()
 
 	for _, module := range b.modules {
@@ -130,7 +130,7 @@ func (b *MPBot) HandleSelectMenuInteraction(e *events.ComponentInteractionCreate
 		}
 	}
 }
-func (b *MPBot) HandleModalSubmitInteraction(e *events.ModalSubmitInteractionCreate) {
+func (b *Client) HandleModalSubmitInteraction(e *events.ModalSubmitInteractionCreate) {
 	customId := e.Data.CustomID
 
 	for _, module := range b.modules {
@@ -153,6 +153,6 @@ func (b *MPBot) HandleModalSubmitInteraction(e *events.ModalSubmitInteractionCre
 	}
 }
 
-func (b *MPBot) HandleMessage(e *events.ModalSubmitInteractionCreate) {
+func (b *Client) HandleMessage(e *events.ModalSubmitInteractionCreate) {
 
 }

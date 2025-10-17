@@ -21,5 +21,10 @@ func New(config *config.Config) *Client {
 
 		config: config,
 	}
+
 	return client
+}
+
+func TimezoneKey(id string) string {
+	return "timezone:" + id
 }

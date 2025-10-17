@@ -3,12 +3,13 @@ package main
 import (
 	"context"
 
-	"github.com/via-development/mr-poll/bot/internal"
 	"github.com/via-development/mr-poll/bot/internal/api"
 	"github.com/via-development/mr-poll/bot/internal/config"
+	"github.com/via-development/mr-poll/bot/internal/core"
 	"github.com/via-development/mr-poll/bot/internal/database"
 	generalModule "github.com/via-development/mr-poll/bot/internal/general-module"
 	pollModule "github.com/via-development/mr-poll/bot/internal/poll-module"
+	"github.com/via-development/mr-poll/bot/internal/redis"
 	suggestionModule "github.com/via-development/mr-poll/bot/internal/suggestion-module"
 	"go.uber.org/fx"
 	"go.uber.org/fx/fxevent"
@@ -24,21 +25,22 @@ func main() {
 			zap.NewDevelopment,
 			config.New,
 			database.New,
-			internal.NewMPBot,
+			redis.New,
+			core.New,
 			api.New,
-			fx.Annotate(pollModule.New, fx.As(new(internal.Module)), fx.ResultTags(`group:"botModules"`)),
-			fx.Annotate(suggestionModule.New, fx.As(new(internal.Module)), fx.ResultTags(`group:"botModules"`)),
-			fx.Annotate(generalModule.New, fx.As(new(internal.Module)), fx.ResultTags(`group:"botModules"`)),
+			fx.Annotate(pollModule.New, fx.As(new(core.Module)), fx.ResultTags(`group:"botModules"`)),
+			fx.Annotate(suggestionModule.New, fx.As(new(core.Module)), fx.ResultTags(`group:"botModules"`)),
+			fx.Annotate(generalModule.New, fx.As(new(core.Module)), fx.ResultTags(`group:"botModules"`)),
 		),
 		fx.Invoke(func(lc fx.Lifecycle, p struct {
 			fx.In
 
 			Config  *config.Config
-			Client  *internal.MPBot
+			Client  *core.Client
 			Db      *database.Database
 			Log     *zap.Logger
 			Api     *api.Api
-			Modules []internal.Module `group:"botModules"`
+			Modules []core.Module `group:"botModules"`
 		}) error {
 			for _, module := range p.Modules {
 				p.Client.Register(module)
