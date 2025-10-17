@@ -10,7 +10,7 @@ import (
 type PollModule struct {
 	internal.Module
 
-	db     *database.GormDB
+	db     *database.Database
 	client *internal.MPBot
 	log    *zap.Logger
 	config *config.Config
@@ -52,7 +52,7 @@ func (m *PollModule) MenuCommands() map[string]internal.ModuleCommand {
 	}
 }
 
-func New(db *database.GormDB, client *internal.MPBot, log *zap.Logger, config *config.Config) *PollModule {
+func New(db *database.Database, client *internal.MPBot, log *zap.Logger, config *config.Config) *PollModule {
 	return &PollModule{
 		db:     db,
 		client: client,

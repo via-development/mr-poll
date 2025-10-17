@@ -24,7 +24,7 @@ type Api struct {
 
 	client bot.Client
 	log    *zap.Logger
-	db     *database.GormDB
+	db     *database.Database
 	config *config.Config
 }
 
@@ -65,7 +65,7 @@ func (a *Api) PostTimezone(c echo.Context) error {
 	return nil
 }
 
-func New(lc fx.Lifecycle, mpb *internal.MPBot, log *zap.Logger, db *database.GormDB, config *config.Config) *Api {
+func New(lc fx.Lifecycle, mpb *internal.MPBot, log *zap.Logger, db *database.Database, config *config.Config) *Api {
 	e := echo.New()
 	a := &Api{
 		client: mpb.Client,

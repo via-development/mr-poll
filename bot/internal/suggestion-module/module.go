@@ -9,7 +9,7 @@ import (
 type SuggestionModule struct {
 	internal.Module
 
-	db     *database.GormDB
+	db     *database.Database
 	client *internal.MPBot
 	config *config.Config
 }
@@ -45,7 +45,7 @@ func (m *SuggestionModule) MenuCommands() map[string]internal.ModuleCommand {
 	return map[string]internal.ModuleCommand{}
 }
 
-func New(db *database.GormDB, client *internal.MPBot, config *config.Config) *SuggestionModule {
+func New(db *database.Database, client *internal.MPBot, config *config.Config) *SuggestionModule {
 	return &SuggestionModule{
 		db:     db,
 		client: client,

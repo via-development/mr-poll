@@ -18,6 +18,10 @@ type Config struct {
 	DSN         string
 	AutoMigrate bool
 
+	RedisAddress  string
+	RedisPassword string
+	RedisDB       int
+
 	BotPort int
 	ApiPort int
 
@@ -53,6 +57,23 @@ func New() (*Config, error) {
 
 	if config.DSN = os.Getenv("DSN"); config.DSN == "" {
 		return nil, keyMissingError("DSN")
+	}
+
+	if config.RedisAddress = os.Getenv("REDIS_ADDRESS"); config.RedisAddress == "" {
+		return nil, keyMissingError("REDIS_ADDRESS")
+	}
+
+	if config.RedisPassword = os.Getenv("REDIS_PASSWORD"); config.RedisPassword == "" {
+		return nil, keyMissingError("REDIS_PASSWORD")
+	}
+
+	if db := os.Getenv("REDIS_DB"); db != "" {
+		config.RedisDB, err = strconv.Atoi(db)
+		if err != nil {
+			return nil, err
+		}
+	} else {
+		config.RedisDB = 0
 	}
 
 	config.SentryDSN = os.Getenv("SENTRY_DSN")

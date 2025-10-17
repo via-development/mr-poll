@@ -35,7 +35,7 @@ func main() {
 
 			Config  *config.Config
 			Client  *internal.MPBot
-			Db      *database.GormDB
+			Db      *database.Database
 			Log     *zap.Logger
 			Api     *api.Api
 			Modules []internal.Module `group:"botModules"`

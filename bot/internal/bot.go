@@ -23,13 +23,13 @@ type MPBotParams struct {
 
 	Config *config.Config
 	Log    *zap.Logger
-	Db     *database.GormDB
+	Db     *database.Database
 }
 
 type MPBot struct {
 	config  *config.Config
 	log     *zap.Logger
-	db      *database.GormDB
+	db      *database.Database
 	modules map[string]Module
 
 	bot.Client

@@ -2,6 +2,7 @@ package database
 
 import (
 	"errors"
+
 	"github.com/disgoorg/disgo/bot"
 	"github.com/disgoorg/snowflake/v2"
 	"github.com/via-development/mr-poll/bot/internal/config"
@@ -12,17 +13,17 @@ import (
 	"gorm.io/gorm"
 )
 
-type GormDB struct {
+type Database struct {
 	*gorm.DB
 
 	config *config.Config
 	log    *zap.Logger
 
-	botsettings *schema.BotSettings
+	botSettings *schema.BotSettings
 }
 
-func New(lc fx.Lifecycle, config *config.Config, log *zap.Logger) (*GormDB, error) {
-	db := &GormDB{
+func New(lc fx.Lifecycle, config *config.Config, log *zap.Logger) (*Database, error) {
+	db := &Database{
 		config: config,
 		log:    log,
 	}
@@ -48,7 +49,7 @@ func New(lc fx.Lifecycle, config *config.Config, log *zap.Logger) (*GormDB, erro
 	return db, nil
 }
 
-func (db *GormDB) BotSettings() schema.BotSettings {
+func (db *Database) BotSettings() schema.BotSettings {
 	var botSettings schema.BotSettings
 	res := db.Where(db.config.BotId).Find(&botSettings)
 
@@ -63,7 +64,7 @@ func (db *GormDB) BotSettings() schema.BotSettings {
 	return botSettings
 }
 
-func (db *GormDB) RunMigrations() error {
+func (db *Database) RunMigrations() error {
 	return db.AutoMigrate(
 		&schema.Poll{},
 		&schema.PollOption{},
@@ -76,7 +77,7 @@ func (db *GormDB) RunMigrations() error {
 	)
 }
 
-func (db *GormDB) FetchUser(client bot.Client, userId string) (*schema.User, error) {
+func (db *Database) FetchUser(client bot.Client, userId string) (*schema.User, error) {
 	var userData *schema.User
 	err := db.Find(&userData, userId).Error
 

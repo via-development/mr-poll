@@ -39,7 +39,7 @@ func (m *PollModule) PollCommand(interaction *events.ApplicationCommandInteracti
 	}
 }
 
-func (m *PollModule) pollCreateCommand(interaction *events.ApplicationCommandInteractionCreate, db *database.GormDB, subcommand string) error {
+func (m *PollModule) pollCreateCommand(interaction *events.ApplicationCommandInteractionCreate, db *database.Database, subcommand string) error {
 	// TODO:
 	//err := interaction.DeferCreateMessage(false)
 	//if err != nil {
@@ -185,7 +185,7 @@ func (m *PollModule) pollOnlineCommand(interaction *events.ApplicationCommandInt
 	})
 }
 
-func (m *PollModule) pollEndCommand(interaction *events.ApplicationCommandInteractionCreate, db *database.GormDB) error {
+func (m *PollModule) pollEndCommand(interaction *events.ApplicationCommandInteractionCreate, db *database.Database) error {
 	cmdData := interaction.SlashCommandInteractionData()
 
 	messageId := cmdData.String("message")
