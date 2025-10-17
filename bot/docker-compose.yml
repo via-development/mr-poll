@@ -1,11 +1,13 @@
-version: "3.9"
-
 services:
   bot:
     build:
       context: .
       dockerfile: Dockerfile
     ports:
-      - "4002:4003"
+      - "3003:3004"
     env_file: .env
+    environment:
+      BOT_PORT: "3003"
+      API_PORT: "3004"
+      WEBSITE_URL: "https://mrpoll.xyz"
     restart: unless-stopped
