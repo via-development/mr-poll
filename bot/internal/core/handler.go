@@ -32,7 +32,7 @@ func (b *Client) HandleReady(e *events.Ready) {
 	)
 
 	if err != nil {
-		b.log.Error("Could not set presence for shard", zap.Int("shardId", e.ShardID()), zap.Error(err))
+		b.log.Error("could not set presence for shard", zap.Int("shardId", e.ShardID()), zap.Error(err))
 	}
 }
 
