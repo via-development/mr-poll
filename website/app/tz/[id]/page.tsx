@@ -1,5 +1,6 @@
 import axios from "axios";
 import { use } from "react";
+import { json } from "stream/consumers";
 
 export default async function Home({
   params,
@@ -8,14 +9,13 @@ export default async function Home({
 }) {
   const { id } = await params;
   let isErr = false
-  const res = await axios.post("https://localhost:3001", {
-    body: {
-      offset: -(new Date().getTimezoneOffset())
-    }
+  const res = await axios.post("http://localhost:4002/tz/" + id, {
+    offset: -(new Date().getTimezoneOffset())
   }).catch(err => {
     isErr = true
     return err
   })
+  console.log(res)
 
   if (!isErr)
     return (

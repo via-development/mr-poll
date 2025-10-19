@@ -63,9 +63,7 @@ func New() (*Config, error) {
 		return nil, keyMissingError("REDIS_ADDRESS")
 	}
 
-	if config.RedisPassword = os.Getenv("REDIS_PASSWORD"); config.RedisPassword == "" {
-		return nil, keyMissingError("REDIS_PASSWORD")
-	}
+	config.RedisPassword = os.Getenv("REDIS_PASSWORD")
 
 	if db := os.Getenv("REDIS_DB"); db != "" {
 		config.RedisDB, err = strconv.Atoi(db)

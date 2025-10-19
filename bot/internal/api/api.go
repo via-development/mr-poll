@@ -49,21 +49,21 @@ func (a *Api) Stop(ctx context.Context) error {
 func (a *Api) PostTimezone(c echo.Context) error {
 	id := c.Param("id")
 	userId := a.redis.Get(context.Background(), redis.TimezoneKey(id))
-	if userId == nil {
+
+	if userId.Err() != nil {
 		return echo.NewHTTPError(http.StatusNotFound)
 	}
 
 	var body struct {
-		TimezoneOffset int                   `json:"timezoneOffset"` // In minutes
+		TimezoneOffset int                   `json:"offset"` // In minutes
 		DateFormat     dateformat.DateFormat `json:"dateFormat"`
 	}
 	if err := c.Bind(&body); err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest)
 	}
+	fmt.Println(userId.Val(), body)
 
-	fmt.Println(userId, body)
-
-	return nil
+	return c.NoContent(http.StatusOK)
 }
 
 func New(lc fx.Lifecycle, client *core.Client, log *zap.Logger, db *database.Database, config *config.Config, redis *redis.Client) *Api {
@@ -73,6 +73,7 @@ func New(lc fx.Lifecycle, client *core.Client, log *zap.Logger, db *database.Dat
 		log:    log,
 		echo:   e,
 		config: config,
+		redis:  redis,
 
 		DummyTimezoneCache: map[string]string{},
 	}
