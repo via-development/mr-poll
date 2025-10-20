@@ -22,19 +22,19 @@ export default function Home() {
         <div className="flex flex-row gap-4">
           <Link
             href="/invite"
-            className="px-6 py-3 bg-primary hover:bg-secondary rounded-xl font-semibold text-white transition"
+            className="px-6 py-3 bg-primary hover:bg-primary/75 rounded-xl font-semibold text-white transition"
           >
             Add Mr Poll
           </Link>
           <Link
             href="/documentaion"
-            className="px-6 py-3 bg-primary hover:bg-secondary rounded-xl font-semibold text-white transition"
+            className="px-6 py-3 bg-primary hover:bg-primary/75 rounded-xl font-semibold text-white transition"
           >
             Documentation
           </Link>
           <Link
             href="/dashboard"
-            className="px-6 py-3 bg-secondary hover:bg-primary rounded-xl font-semibold text-white transition"
+            className="px-6 py-3 bg-secondary hover:bg-secondary/75 rounded-xl font-semibold text-white transition"
           >
             Dashboard
           </Link>
