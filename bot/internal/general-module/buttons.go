@@ -20,7 +20,7 @@ func (m *GeneralModule) MrPollButton(interaction *events.ComponentInteractionCre
 		Embeds: &[]discord.Embed{
 			embed,
 		},
-		Components: &[]discord.ContainerComponent{
+		Components: &[]discord.LayoutComponent{
 			HelpComponents(page == "back"),
 		},
 	})

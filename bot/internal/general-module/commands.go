@@ -16,7 +16,7 @@ func (m *GeneralModule) MrPollCommand(interaction *events.ApplicationCommandInte
 		Embeds: []discord.Embed{
 			IntroductoryEmbed(),
 		},
-		Components: []discord.ContainerComponent{
+		Components: []discord.LayoutComponent{
 			HelpComponents(true),
 		},
 	})

@@ -3,6 +3,7 @@ package poll_module
 import (
 	"errors"
 	"fmt"
+
 	"github.com/disgoorg/disgo/discord"
 	"github.com/disgoorg/disgo/events"
 	"github.com/golittie/timeless"
@@ -173,12 +174,14 @@ func (m *PollModule) pollOnlineCommand(interaction *events.ApplicationCommandInt
 	}
 
 	return interaction.CreateMessage(discord.MessageCreate{
-		Components: []discord.ContainerComponent{
+		Components: []discord.LayoutComponent{
 			discord.ActionRowComponent{
-				discord.ButtonComponent{ // Leaked?!?!
-					URL:   "https://mrpoll.xyz/polls/" + guildId,
-					Style: discord.ButtonStyleLink,
-					Label: "View Polls",
+				Components: []discord.InteractiveComponent{
+					discord.ButtonComponent{ // Leaked?!?!
+						URL:   "https://mrpoll.xyz/polls/" + guildId,
+						Style: discord.ButtonStyleLink,
+						Label: "View Polls",
+					},
 				},
 			},
 		},
@@ -222,8 +225,8 @@ func (m *PollModule) pollEndCommand(interaction *events.ApplicationCommandIntera
 
 	// If it's not their own poll, check for permissions
 	if pollData.UserId != interaction.User().ID.String() {
-		channel, _ := interaction.Client().Caches().GuildTextChannel(interaction.Channel().ID())
-		perms := interaction.Client().Caches().MemberPermissionsInChannel(channel, interaction.Member().Member)
+		channel, _ := interaction.Client().Caches.GuildTextChannel(interaction.Channel().ID())
+		perms := interaction.Client().Caches.MemberPermissionsInChannel(channel, interaction.Member().Member)
 
 		if !perms.Has(discord.PermissionManageMessages) {
 			return interaction.CreateMessage(NotYourPollMessage())

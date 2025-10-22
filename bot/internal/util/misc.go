@@ -24,20 +24,20 @@ const EmbedColor = 0x40FFAC
 const RedColor = 0xFF0000
 const GreenColor = 0x00FF00
 
-func PrepareChannel(client bot.Client, guildId snowflake.ID, channelId snowflake.ID, permissions discord.Permissions) (discord.GuildChannel, UtilError) {
-	channel, found := client.Caches().Channel(channelId)
+func PrepareChannel(client *bot.Client, guildId snowflake.ID, channelId snowflake.ID, permissions discord.Permissions) (discord.GuildChannel, UtilError) {
+	channel, found := client.Caches.Channel(channelId)
 	if !found {
 		return nil, NewNaturalErrorS("channel is not in cache")
 	}
-	member, found := client.Caches().Member(guildId, client.ApplicationID())
+	member, found := client.Caches.Member(guildId, client.ApplicationID)
 	if !found {
-		m, err := client.Rest().GetMember(guildId, client.ApplicationID())
+		m, err := client.Rest.GetMember(guildId, client.ApplicationID)
 		if err != nil {
 			return nil, NewFaultError(err)
 		}
 		member = *m
 	}
-	p := client.Caches().MemberPermissionsInChannel(channel, member)
+	p := client.Caches.MemberPermissionsInChannel(channel, member)
 	if p.Missing(permissions) {
 		return nil, NewNaturalErrorS("I am missing permissions in the channel")
 	}

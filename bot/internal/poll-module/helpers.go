@@ -3,16 +3,17 @@ package poll_module
 import (
 	"errors"
 	"fmt"
+	"math"
+	"slices"
+	"sort"
+	"time"
+
 	"github.com/disgoorg/disgo/discord"
 	"github.com/disgoorg/disgo/events"
 	"github.com/labstack/gommon/log"
 	"github.com/via-development/mr-poll/bot/internal/database/schema"
 	"github.com/via-development/mr-poll/bot/internal/util"
 	"go.uber.org/zap"
-	"math"
-	"slices"
-	"sort"
-	"time"
 )
 
 var requiredPermissions = discord.PermissionSendMessages // | discord.PermissionViewChannel
@@ -22,25 +23,25 @@ func (m *PollModule) CreatePoll(poll *schema.Poll) (*discord.Message, error) {
 	channelId := poll.ChannelIdSnowflake()
 
 	// Channel permission check
-	channel, found := m.client.Caches().Channel(channelId)
+	channel, found := m.client.Caches.Channel(channelId)
 	if !found {
 		return nil, errors.New("channel is not in cache")
 	}
-	member, found := m.client.Caches().Member(*poll.GuildIdSnowflake(), m.client.ApplicationID())
+	member, found := m.client.Caches.Member(*poll.GuildIdSnowflake(), m.client.ApplicationID)
 	if !found {
-		m, err := m.client.Rest().GetMember(*poll.GuildIdSnowflake(), m.client.ApplicationID())
+		m, err := m.client.Rest.GetMember(*poll.GuildIdSnowflake(), m.client.ApplicationID)
 		if err != nil {
 			return nil, err
 		}
 		member = *m
 	}
-	p := m.client.Caches().MemberPermissionsInChannel(channel, member)
+	p := m.client.Caches.MemberPermissionsInChannel(channel, member)
 	if p.Missing(requiredPermissions) {
 		return nil, errors.New("I am missing permissions in the channel")
 	}
 
 	// Send poll message in channel
-	message, err := m.client.Rest().CreateMessage(channelId, discord.MessageCreate{
+	message, err := m.client.Rest.CreateMessage(channelId, discord.MessageCreate{
 		Content:    MakePollText(poll),
 		Embeds:     m.MakePollEmbeds(poll),
 		Components: m.MakePollComponents(poll),
@@ -70,7 +71,7 @@ func (m *PollModule) CreatePollDM(interaction *events.ApplicationCommandInteract
 	}
 
 	// Get interaction response
-	message, err := interaction.Client().Rest().GetInteractionResponse(interaction.Client().ID(), interaction.Token())
+	message, err := interaction.Client().Rest.GetInteractionResponse(interaction.Client().ID(), interaction.Token())
 	if err != nil {
 		return nil, err
 	}
@@ -140,7 +141,7 @@ func (m *PollModule) UpdatePollMessage(poll *schema.Poll) error {
 		Components: &pollComponents,
 	}
 
-	_, err := m.client.Rest().UpdateMessage(poll.ChannelIdSnowflake(), poll.MessageIdSnowflake(), message)
+	_, err := m.client.Rest.UpdateMessage(poll.ChannelIdSnowflake(), poll.MessageIdSnowflake(), message)
 	return err
 }
 
@@ -217,7 +218,7 @@ func (m *PollModule) FetchPollUser(poll *schema.Poll) error {
 		return nil
 	}
 
-	u, err := m.db.FetchUser(m.client, poll.UserId)
+	u, err := m.db.FetchUser(m.client.Client, poll.UserId)
 	if err != nil {
 		return err
 	}
@@ -231,7 +232,7 @@ func (m *PollModule) FetchPollEnder(pollData *schema.Poll) error {
 		return nil
 	}
 
-	u, err := m.db.FetchUser(m.client, *pollData.EnderUserId)
+	u, err := m.db.FetchUser(m.client.Client, *pollData.EnderUserId)
 	if err != nil {
 		return err
 	}
@@ -300,11 +301,11 @@ var menuButton = discord.ButtonComponent{
 }
 
 // MakePollComponents makes components for a poll with the poll data provided.
-func (m *PollModule) MakePollComponents(data *schema.Poll) []discord.ContainerComponent {
-	var components []discord.ContainerComponent
+func (m *PollModule) MakePollComponents(data *schema.Poll) []discord.LayoutComponent {
+	var components []discord.LayoutComponent
 	switch data.Type {
 	case schema.YesOrNoType, schema.SingleChoiceType:
-		var options discord.ActionRowComponent
+		var options []discord.InteractiveComponent
 		for i, op := range data.Options {
 			e := op.ApiEmoji()
 			s := discord.ButtonStylePrimary
@@ -332,7 +333,9 @@ func (m *PollModule) MakePollComponents(data *schema.Poll) []discord.ContainerCo
 		options = append(options, menuButton)
 		for i := range (len(options) / 5) + 1 {
 			upper := int(math.Min(float64(i*5+5), float64(len(options))))
-			components = append(components, options[i*5:upper])
+			components = append(components, discord.ActionRowComponent{
+				Components: options[i*5 : upper],
+			})
 		}
 	case schema.MultipleChoiceType:
 		var options []discord.StringSelectMenuOption
@@ -340,7 +343,7 @@ func (m *PollModule) MakePollComponents(data *schema.Poll) []discord.ContainerCo
 			e := opt.ApiEmoji()
 			desc := ""
 			if data.CanSubmit && opt.SubmitBy != nil {
-				user, err := m.db.FetchUser(m.client, *opt.SubmitBy)
+				user, err := m.db.FetchUser(m.client.Client, *opt.SubmitBy)
 				if err == nil && user != nil {
 					desc = fmt.Sprint("Submitted by @", user.Username)
 				}
@@ -368,17 +371,27 @@ func (m *PollModule) MakePollComponents(data *schema.Poll) []discord.ContainerCo
 			selectmenu.MaxValues = int(*data.NumOfChoices)
 		}
 
-		components = []discord.ContainerComponent{
-			discord.ActionRowComponent{selectmenu},
-			discord.ActionRowComponent{menuButton},
+		components = []discord.LayoutComponent{
+			discord.ActionRowComponent{
+				Components: []discord.InteractiveComponent{
+					selectmenu,
+				},
+			},
+			discord.ActionRowComponent{
+				Components: []discord.InteractiveComponent{
+					menuButton,
+				},
+			},
 		}
 	default:
 		components[0] = discord.ActionRowComponent{
-			discord.ButtonComponent{
-				Label:    "Something went wrong!",
-				CustomID: "oops",
-				Style:    discord.ButtonStyleSecondary,
-				Disabled: true,
+			Components: []discord.InteractiveComponent{
+				discord.ButtonComponent{
+					Label:    "Something went wrong!",
+					CustomID: "oops",
+					Style:    discord.ButtonStyleSecondary,
+					Disabled: true,
+				},
 			},
 		}
 	}
@@ -420,12 +433,16 @@ func PollOptionSubmitModel(messageId string) discord.ModalCreate {
 	return discord.ModalCreate{
 		Title:    "Submit your answer!",
 		CustomID: "poll:option-submit:" + messageId,
-		Components: []discord.ContainerComponent{
+		Components: []discord.LayoutComponent{
+			discord.LabelComponent{
+				Label: "Your Answer",
+			},
 			discord.ActionRowComponent{
-				discord.TextInputComponent{
-					Label:    "Your Answer",
-					CustomID: "answer",
-					Style:    discord.TextInputStyleShort,
+				Components: []discord.InteractiveComponent{
+					discord.TextInputComponent{
+						CustomID: "answer",
+						Style:    discord.TextInputStyleShort,
+					},
 				},
 			},
 		},

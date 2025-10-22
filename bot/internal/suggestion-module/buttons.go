@@ -48,7 +48,7 @@ func (m *SuggestionModule) SuggestionsVoteButton(interaction *events.ComponentIn
 			return err
 		}
 
-		_, _ = interaction.Client().Rest().CreateFollowupMessage(interaction.Client().ID(), interaction.Token(), discord.MessageCreate{
+		_, _ = interaction.Client().Rest.CreateFollowupMessage(interaction.Client().ID(), interaction.Token(), discord.MessageCreate{
 			Flags: discord.MessageFlagEphemeral,
 			Embeds: []discord.Embed{
 				util.MakeSuccessEmbed(fmt.Sprintf("Your %s was %s", op, action)),

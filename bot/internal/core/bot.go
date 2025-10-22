@@ -24,7 +24,7 @@ type Client struct {
 	db      *database.Database
 	modules map[string]Module
 
-	bot.Client
+	*bot.Client
 }
 
 type clientParams struct {

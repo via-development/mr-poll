@@ -2,6 +2,7 @@ package poll_module
 
 import (
 	"errors"
+
 	"github.com/disgoorg/disgo/discord"
 	"github.com/disgoorg/disgo/events"
 	"github.com/via-development/mr-poll/bot/internal/database/schema"
@@ -25,8 +26,8 @@ func (m *PollModule) MenuPollEndCommand(interaction *events.ApplicationCommandIn
 			return interaction.CreateMessage(NotYourPollMessage())
 		}
 
-		channel, _ := interaction.Client().Caches().GuildTextChannel(interaction.Channel().ID())
-		perms := interaction.Client().Caches().MemberPermissionsInChannel(channel, interaction.Member().Member)
+		channel, _ := interaction.Client().Caches.GuildTextChannel(interaction.Channel().ID())
+		perms := interaction.Client().Caches.MemberPermissionsInChannel(channel, interaction.Member().Member)
 
 		if !perms.Has(discord.PermissionManageMessages) {
 			return interaction.CreateMessage(NotYourPollMessage())
@@ -55,7 +56,7 @@ func (m *PollModule) MenuPollEndCommand(interaction *events.ApplicationCommandIn
 		Components: &pollComponents,
 	}
 
-	_, err = interaction.Client().Rest().UpdateMessage(interaction.Channel().ID(), interaction.MessageCommandInteractionData().TargetMessage().ID, messageUpdate)
+	_, err = interaction.Client().Rest.UpdateMessage(interaction.Channel().ID(), interaction.MessageCommandInteractionData().TargetMessage().ID, messageUpdate)
 	return err
 }
 

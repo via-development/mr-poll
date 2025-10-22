@@ -2,12 +2,13 @@ package poll_module
 
 import (
 	"fmt"
+	"strconv"
+	"strings"
+
 	"github.com/disgoorg/disgo/discord"
 	"github.com/disgoorg/disgo/events"
 	"github.com/via-development/mr-poll/bot/internal/database/schema"
 	"github.com/via-development/mr-poll/bot/internal/util"
-	"strconv"
-	"strings"
 )
 
 func (m *PollModule) PollOptionButton(interaction *events.ComponentInteractionCreate) error {
@@ -16,7 +17,7 @@ func (m *PollModule) PollOptionButton(interaction *events.ComponentInteractionCr
 		return interaction.CreateMessage(PollNotFoundMessage())
 	}
 	if poll.HasEnded {
-		interaction.Client().Rest().CreateFollowupMessage(interaction.Client().ID(), interaction.Token(), discord.MessageCreate{
+		m.client.Rest.CreateFollowupMessage(interaction.Client().ID(), interaction.Token(), discord.MessageCreate{
 			Flags:   discord.MessageFlagEphemeral,
 			Content: "This poll has ended lol!",
 		})
@@ -41,7 +42,7 @@ func (m *PollModule) PollOptionButton(interaction *events.ComponentInteractionCr
 				Embeds:     &pollEmbeds,
 				Components: &components,
 			})
-			interaction.Client().Rest().CreateFollowupMessage(interaction.Client().ID(), interaction.Token(), discord.MessageCreate{
+			m.client.Rest.CreateFollowupMessage(interaction.Client().ID(), interaction.Token(), discord.MessageCreate{
 				Flags:   discord.MessageFlagEphemeral,
 				Content: "Hey, I have just updated this poll to work with the new system, please vote again!",
 			})
@@ -68,7 +69,7 @@ func (m *PollModule) PollOptionButton(interaction *events.ComponentInteractionCr
 	}
 	err = interaction.UpdateMessage(messageUpdate)
 
-	interaction.Client().Rest().CreateFollowupMessage(interaction.Client().ID(), interaction.Token(), discord.MessageCreate{
+	interaction.Client().Rest.CreateFollowupMessage(interaction.Client().ID(), interaction.Token(), discord.MessageCreate{
 		Flags:  discord.MessageFlagEphemeral,
 		Embeds: []discord.Embed{util.MakeSuccessEmbed("Your vote was " + action)},
 	})
@@ -102,7 +103,7 @@ func (m *PollModule) PollMenuButton(interaction *events.ComponentInteractionCrea
 		e := m.MakePollEmbeds(&poll)
 		c := m.MakePollComponents(&poll)
 
-		_, err = interaction.Client().Rest().UpdateMessage(poll.ChannelIdSnowflake(), poll.MessageIdSnowflake(), discord.MessageUpdate{
+		_, err = interaction.Client().Rest.UpdateMessage(poll.ChannelIdSnowflake(), poll.MessageIdSnowflake(), discord.MessageUpdate{
 			Embeds:     &e,
 			Components: &c,
 		})
@@ -121,8 +122,8 @@ func (m *PollModule) PollMenuButton(interaction *events.ComponentInteractionCrea
 				return interaction.CreateMessage(NotYourPollMessage())
 			}
 
-			channel, _ := interaction.Client().Caches().GuildTextChannel(interaction.Channel().ID())
-			perms := interaction.Client().Caches().MemberPermissionsInChannel(channel, interaction.Member().Member)
+			channel, _ := interaction.Client().Caches.GuildTextChannel(interaction.Channel().ID())
+			perms := interaction.Client().Caches.MemberPermissionsInChannel(channel, interaction.Member().Member)
 
 			if !perms.Has(discord.PermissionManageMessages) {
 				return interaction.CreateMessage(NotYourPollMessage())
@@ -170,20 +171,22 @@ func (m *PollModule) handlePollMenuMainPage(interaction *events.ComponentInterac
 	}
 
 	buttons := discord.ActionRowComponent{
-		discord.ButtonComponent{
-			Style:    discord.ButtonStyleSecondary,
-			Emoji:    &discord.ComponentEmoji{Name: "🔄", ID: 0},
-			CustomID: "poll:menu-refresh:" + pollData.MessageId,
-		},
-		discord.ButtonComponent{
-			Style:    discord.ButtonStyleSecondary,
-			Emoji:    &discord.ComponentEmoji{Name: "🛑", ID: 0},
-			CustomID: "poll:menu-end:" + pollData.MessageId,
+		Components: []discord.InteractiveComponent{
+			discord.ButtonComponent{
+				Style:    discord.ButtonStyleSecondary,
+				Emoji:    &discord.ComponentEmoji{Name: "🔄", ID: 0},
+				CustomID: "poll:menu-refresh:" + pollData.MessageId,
+			},
+			discord.ButtonComponent{
+				Style:    discord.ButtonStyleSecondary,
+				Emoji:    &discord.ComponentEmoji{Name: "🛑", ID: 0},
+				CustomID: "poll:menu-end:" + pollData.MessageId,
+			},
 		},
 	}
 	return interaction.CreateMessage(discord.MessageCreate{
 		Flags:      discord.MessageFlagEphemeral,
 		Content:    fmt.Sprintf("ℹ️ You can do the same actions by right clicking the poll!\n> %s", pollData.Question),
-		Components: []discord.ContainerComponent{buttons},
+		Components: []discord.LayoutComponent{buttons},
 	})
 }
