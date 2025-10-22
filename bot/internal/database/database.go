@@ -77,12 +77,12 @@ func (db *Database) RunMigrations() error {
 	)
 }
 
-func (db *Database) FetchUser(client bot.Client, userId string) (*schema.User, error) {
+func (db *Database) FetchUser(client *bot.Client, userId string) (*schema.User, error) {
 	var userData *schema.User
 	err := db.Find(&userData, userId).Error
 
 	if err != nil && errors.Is(err, gorm.ErrRecordNotFound) || userData.Username == "" {
-		user, err := client.Rest().GetUser(snowflake.MustParse(userId))
+		user, err := client.Rest.GetUser(snowflake.MustParse(userId))
 		if err != nil {
 			return nil, err
 		}

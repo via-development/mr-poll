@@ -11,7 +11,7 @@ import (
 
 func (m *SuggestionModule) CreateSugggestion(suggestion *schema.Suggestion, suggestionChannel *schema.SuggestionChannel) (*discord.Message, util.UtilError) {
 	// Channel permission check
-	channel, uErr := util.PrepareChannel(m.client, suggestion.GuildIdSnowflake(), suggestion.ChannelIdSnowflake(), discord.PermissionSendMessages)
+	channel, uErr := util.PrepareChannel(m.client.Client, suggestion.GuildIdSnowflake(), suggestion.ChannelIdSnowflake(), discord.PermissionSendMessages)
 	if uErr != nil {
 		return nil, uErr
 	}
@@ -23,7 +23,7 @@ func (m *SuggestionModule) CreateSugggestion(suggestion *schema.Suggestion, sugg
 		}
 	}
 
-	message, err := m.client.Rest().CreateMessage(channel.ID(), discord.MessageCreate{
+	message, err := m.client.Rest.CreateMessage(channel.ID(), discord.MessageCreate{
 		Embeds: []discord.Embed{
 			m.MakeSuggestionEmbed(suggestion, suggestionChannel),
 		},
@@ -89,7 +89,7 @@ func (m *SuggestionModule) FetchSuggestionUser(suggestion *schema.Suggestion) er
 		return nil
 	}
 
-	u, err := m.db.FetchUser(m.client, suggestion.UserId)
+	u, err := m.db.FetchUser(m.client.Client, suggestion.UserId)
 	if err != nil {
 		return err
 	}
@@ -99,7 +99,7 @@ func (m *SuggestionModule) FetchSuggestionUser(suggestion *schema.Suggestion) er
 }
 
 func (m *SuggestionModule) DeployGuildSuggestCommand(guildId snowflake.ID, suggestionChannels []schema.SuggestionChannel) error {
-	gcommands, err := m.client.Rest().GetGuildCommands(m.client.ID(), guildId, true)
+	gcommands, err := m.client.Rest.GetGuildCommands(m.client.ID(), guildId, true)
 	if err != nil {
 		return err
 	}
@@ -121,7 +121,7 @@ func (m *SuggestionModule) DeployGuildSuggestCommand(guildId snowflake.ID, sugge
 			return nil
 		}
 
-		return m.client.Rest().DeleteGuildCommand(m.client.ID(), guildId, *commandId)
+		return m.client.Rest.DeleteGuildCommand(m.client.ID(), guildId, *commandId)
 	}
 
 	var subcommands []discord.ApplicationCommandOption
@@ -141,11 +141,11 @@ func (m *SuggestionModule) DeployGuildSuggestCommand(guildId snowflake.ID, sugge
 	}
 
 	if commandId != nil {
-		_, err = m.client.Rest().UpdateGuildCommand(m.client.ID(), guildId, *commandId, discord.SlashCommandUpdate{
+		_, err = m.client.Rest.UpdateGuildCommand(m.client.ID(), guildId, *commandId, discord.SlashCommandUpdate{
 			Options: &subcommands,
 		})
 	} else {
-		_, err = m.client.Rest().CreateGuildCommand(m.client.ID(), guildId, discord.SlashCommandCreate{
+		_, err = m.client.Rest.CreateGuildCommand(m.client.ID(), guildId, discord.SlashCommandCreate{
 			Name:        "suggest",
 			Description: "The suggest command",
 			Options:     subcommands,
@@ -156,7 +156,7 @@ func (m *SuggestionModule) DeployGuildSuggestCommand(guildId snowflake.ID, sugge
 }
 
 func (m *SuggestionModule) SendSuggestionChannelPanel(suggestionChannel *schema.SuggestionChannel) (*snowflake.ID, error) {
-	message, err := m.client.Rest().CreateMessage(snowflake.MustParse(suggestionChannel.ChannelId), discord.MessageCreate{
+	message, err := m.client.Rest.CreateMessage(snowflake.MustParse(suggestionChannel.ChannelId), discord.MessageCreate{
 		Content: "Welcome to the suggestion channel!",
 		Embeds: []discord.Embed{
 			MakeSuggestionChannelPanelEmbed(suggestionChannel),
@@ -268,24 +268,26 @@ func MakeSuggestionChannelPanelEmbed(suggestionChannel *schema.SuggestionChannel
 
 // COMPONENTS
 
-func MakeSuggestionComponents(suggestion *schema.Suggestion) []discord.ContainerComponent {
-	return []discord.ContainerComponent{
+func MakeSuggestionComponents(suggestion *schema.Suggestion) []discord.LayoutComponent {
+	return []discord.LayoutComponent{
 		discord.ActionRowComponent{
-			discord.ButtonComponent{
-				Label:    "0",
-				CustomID: "dummy",
-				Style:    discord.ButtonStyleSecondary,
-				Disabled: true,
-			},
-			discord.ButtonComponent{
-				Emoji:    &discord.ComponentEmoji{ID: util.UpvoteEmoji},
-				CustomID: "suggestion:upvote",
-				Style:    discord.ButtonStyleSuccess,
-			},
-			discord.ButtonComponent{
-				Emoji:    &discord.ComponentEmoji{ID: util.DownvoteEmoji},
-				CustomID: "suggestion:downvote",
-				Style:    discord.ButtonStyleDanger,
+			Components: []discord.InteractiveComponent{
+				discord.ButtonComponent{
+					Label:    "0",
+					CustomID: "dummy",
+					Style:    discord.ButtonStyleSecondary,
+					Disabled: true,
+				},
+				discord.ButtonComponent{
+					Emoji:    &discord.ComponentEmoji{ID: util.UpvoteEmoji},
+					CustomID: "suggestion:upvote",
+					Style:    discord.ButtonStyleSuccess,
+				},
+				discord.ButtonComponent{
+					Emoji:    &discord.ComponentEmoji{ID: util.DownvoteEmoji},
+					CustomID: "suggestion:downvote",
+					Style:    discord.ButtonStyleDanger,
+				},
 			},
 		},
 	}
@@ -297,19 +299,27 @@ func SuggestionSubmitModal(channelId string) discord.ModalCreate {
 	return discord.ModalCreate{
 		Title:    "New Suggestion!",
 		CustomID: "suggest:submit:" + channelId,
-		Components: []discord.ContainerComponent{
-			discord.ActionRowComponent{
-				discord.TextInputComponent{
-					Label:    "Title",
-					CustomID: "title",
-					Style:    discord.TextInputStyleShort,
-				},
+		Components: []discord.LayoutComponent{
+			discord.LabelComponent{
+				Label: "Title",
 			},
 			discord.ActionRowComponent{
-				discord.TextInputComponent{
-					Label:    "Description",
-					CustomID: "description",
-					Style:    discord.TextInputStyleParagraph,
+				Components: []discord.InteractiveComponent{
+					discord.TextInputComponent{
+						CustomID: "title",
+						Style:    discord.TextInputStyleShort,
+					},
+				},
+			},
+			discord.LabelComponent{
+				Label: "Description",
+			},
+			discord.ActionRowComponent{
+				Components: []discord.InteractiveComponent{
+					discord.TextInputComponent{
+						CustomID: "description",
+						Style:    discord.TextInputStyleParagraph,
+					},
 				},
 			},
 		},

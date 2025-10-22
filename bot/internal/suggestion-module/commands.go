@@ -295,11 +295,11 @@ func (m *SuggestionModule) ApproveDenyCommand(interaction *events.ApplicationCom
 
 	approved := interaction.Data.CommandName() == "approve"
 
-	_, err = m.client.Rest().UpdateMessage(suggestion.ChannelIdSnowflake(), snowflake.MustParse(targetMessageId), discord.MessageUpdate{
+	_, err = m.client.Rest.UpdateMessage(suggestion.ChannelIdSnowflake(), snowflake.MustParse(targetMessageId), discord.MessageUpdate{
 		Embeds: &[]discord.Embed{
 			m.MakeProcessedSuggestionEmbed(&suggestion, &suggestionChannel, approved),
 		},
-		Components: &[]discord.ContainerComponent{},
+		Components: &[]discord.LayoutComponent{},
 	})
 	if err != nil {
 		return interaction.CreateMessage(discord.MessageCreate{
